@@ -1,0 +1,30 @@
+{
+  "name": "netlify-recaptcha-validator",
+  "version": "1.0.0",
+  "description": "Netlify serverless function for reCAPTCHA validation",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "netlify dev",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "netlify",
+    "serverless",
+    "recaptcha",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@netlify/functions": "^2.4.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/node-fetch": "^2.6.11",
+    "netlify-cli": "^17.10.1",
+    "typescript": "^5.3.3"
+  }
+}
+
