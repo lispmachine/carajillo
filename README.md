@@ -130,6 +130,93 @@ grecaptcha.ready(function() {
 });
 ```
 
+### Architecture
+
+Principles:
+
+1. It has to prevent bots from subscribing to e-mails: CAPTCHA + confirmation e-mail
+2. Should we relax the requirement for e-mail confirmation when CAPTCHA score is high?
+3. The agent should be stateless. The user flow should be authorized by time limited [JWT](https://datatracker.ietf.org/doc/html/rfc7519)
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant UserAgent
+  participant reCAPTCHAv3
+  participant mailer
+  participant Loops
+  participant MailServer 
+
+  UserAgent -->>+ User: Show subscripton form
+
+  User ->>- UserAgent: Submit subscription form
+  activate UserAgent
+  UserAgent ->>+ reCAPTCHAv3: get reCAPTCHA token
+  reCAPTCHAv3 -->>- UserAgent: reCAPTCHA token
+  UserAgent ->> mailer: Form data + reCAPTCHA token
+  deactivate UserAgent
+
+    activate mailer
+    mailer ->>+ reCAPTCHAv3: Verify token
+    reCAPTCHAv3 -->>- mailer: CAPTCHA score
+    rect rgb(100, 0, 0)
+      break when score below threashold
+        mailer -->> UserAgent: I smell 🤖
+      end
+    end
+
+    alt Contact does not exist
+      mailer ->>+ Loops: Find contact by e-mail
+      Loops -->>- mailer: empty contact list
+      mailer ->>+ Loops: 🆕 Create contact (e-mail, language, captcha score...)
+      Loops -->>- mailer: New contact id
+    else Contact exists
+      mailer ->>+ Loops: Find contact by e-mail
+      Loops -->>- mailer: contact id + optInStatus (one of: "pending", "accepted", "rejected" or null)
+    end
+    mailer ->>+ Loops: 📨 Send confirmation e-mail<br/>transactionalId, JWT
+    Loops ->> MailServer: 📨 Confirmation e-mail
+    activate MailServer
+    Loops -->>- mailer: e-mail sent
+
+  mailer -->> UserAgent: OK
+  deactivate mailer
+  UserAgent ->>+ User: Prompt to check e-mail
+
+  User ->>- MailServer: Open e-mail, click confirmation link
+  MailServer ->> UserAgent: 🔗 Confirmation link
+  deactivate MailServer
+  activate UserAgent
+  UserAgent ->>+ mailer: Confirm subscription
+    mailer ->>+ Loops: Update contact (subscribed=true)
+    Loops -->>- mailer: Contact subscribed
+  mailer -->>- UserAgent: Show subscription status page<br/>along with token to change subscription
+  UserAgent ->> User: 🐵
+  deactivate UserAgent
+
+  rect rgb(100, 0, 0)
+    opt Change subscription settings
+      User ->>+ UserAgent: That was a mistake!
+      UserAgent ->>+ mailer: Unsubscribe
+      mailer ->>+ Loops: Update contact (subscribed=false)
+      Loops -->>- mailer: Contact updated
+      mailer -->>- UserAgent: OK
+      UserAgent -->>- User: That's fine
+    end
+  end
+```
+
+### sample JWT
+
+```json
+{
+  "iss": "newsletter@domain.org",
+  "sub": "subcriber@example.com",
+  "aud": "mailer.domain.org",
+  "exp": Date.now()/1000 + 600 
+}
+```
+
 ## API Reference
 
 ### Error Codes

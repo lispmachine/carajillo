@@ -3,8 +3,10 @@ import fetch from 'node-fetch';
 
 interface RecaptchaResponse {
   success: boolean;
-  challenge_ts?: string;
-  hostname?: string;
+  score: number;
+  action: string;
+  challenge_ts: string;
+  hostname: string;
   'error-codes'?: string[];
 }
 
@@ -16,23 +18,6 @@ export const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
-  // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      },
-      body: JSON.stringify({
-        error: 'Method Not Allowed',
-        message: 'Only POST requests are allowed',
-      }),
-    };
-  }
-
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -43,6 +28,23 @@ export const handler: Handler = async (
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
       },
       body: '',
+    };
+  }
+
+  // Only allow POST requests
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Accept, Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      },
+      body: JSON.stringify({
+        error: 'Method Not Allowed',
+        message: 'Only POST requests are allowed',
+      }),
     };
   }
 
@@ -59,8 +61,8 @@ export const handler: Handler = async (
           'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({
+          success: false,
           error: 'Server configuration error',
-          message: 'reCAPTCHA secret key is not configured',
         }),
       };
     }
@@ -77,8 +79,8 @@ export const handler: Handler = async (
           'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({
+          success: false,
           error: 'Invalid JSON',
-          message: 'Request body must be valid JSON',
         }),
       };
     }
@@ -93,8 +95,8 @@ export const handler: Handler = async (
           'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({
+          success: false,
           error: 'Missing token',
-          message: 'reCAPTCHA token is required',
         }),
       };
     }
@@ -105,6 +107,7 @@ export const handler: Handler = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
       },
       body: `secret=${recaptchaSecretKey}&response=${token}`,
     });
@@ -122,12 +125,7 @@ export const handler: Handler = async (
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({
-          success: true,
-          message: 'reCAPTCHA validation successful',
-          challenge_ts: data.challenge_ts,
-          hostname: data.hostname,
-        }),
+        body: JSON.stringify(data),
       };
     } else {
       return {
@@ -152,10 +150,9 @@ export const handler: Handler = async (
         'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify({
-        error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       }),
     };
   }
 };
-
