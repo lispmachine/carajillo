@@ -14,6 +14,18 @@ interface RequestBody {
   token: string;
 }
 
+const headers = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Accept, Content-Type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Cache-Control': 'no-store',
+  //'Strict-Transport-Security': 'max-age=31536000',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+}
+
 export const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
@@ -22,12 +34,8 @@ export const handler: Handler = async (
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      },
-      body: '',
+      headers: headers,
+      body: JSON.stringify({}),
     };
   }
 
@@ -35,12 +43,7 @@ export const handler: Handler = async (
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Accept, Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      },
+      headers: headers,
       body: JSON.stringify({
         error: 'Method Not Allowed',
         message: 'Only POST requests are allowed',
@@ -56,10 +59,7 @@ export const handler: Handler = async (
       console.error('RECAPTCHA_SECRET_KEY environment variable is not set');
       return {
         statusCode: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: headers,
         body: JSON.stringify({
           success: false,
           error: 'Server configuration error',
@@ -74,10 +74,7 @@ export const handler: Handler = async (
     } catch (error) {
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: headers,
         body: JSON.stringify({
           success: false,
           error: 'Invalid JSON',
@@ -90,10 +87,7 @@ export const handler: Handler = async (
     if (!token) {
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: headers,
         body: JSON.stringify({
           success: false,
           error: 'Missing token',
@@ -105,10 +99,7 @@ export const handler: Handler = async (
     const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
     const response = await fetch(verifyUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-      },
+      headers: headers,
       body: `secret=${recaptchaSecretKey}&response=${token}`,
     });
 
@@ -121,19 +112,13 @@ export const handler: Handler = async (
     if (data.success) {
       return {
         statusCode: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: headers,
         body: JSON.stringify(data),
       };
     } else {
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: headers,
         body: JSON.stringify({
           success: false,
           error: 'reCAPTCHA validation failed',
@@ -145,10 +130,7 @@ export const handler: Handler = async (
     console.error('Error validating reCAPTCHA:', error);
     return {
       statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: headers,
       body: JSON.stringify({
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
