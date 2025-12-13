@@ -33,26 +33,36 @@ Set your reCAPTCHA secret key as an environment variable in Netlify:
 
 **Via Netlify CLI:**
 ```bash
-netlify env:set JWT_SECRET $(dd count=1 ibs=32 if=/dev/random status=none | base64)
-netlify env:set CAPTCHA_PROVIDER recaptcha
+npx netlify link
+npx netlify env:set --context production deploy-preview --secret JWT_SECRET $(dd count=1 ibs=32 if=/dev/random status=none | base64)
+npx netlify env:set CAPTCHA_PROVIDER recaptcha
 # https://console.cloud.google.com/security/recaptcha/
-netlify env:set RECAPTCHA_SITE_KEY "your-site-key"
-netlify env:set RECAPTCHA_SECRET "your-secret-key-here"
+npx netlify env:set RECAPTCHA_SITE_KEY "your-site-key"
+npx netlify env:set --context production deploy-preview --secret RECAPTCHA_SECRET "your-secret-key-here"
 # https://app.loops.so/settings?page=api
-netlify env:set LOOPS_SECRET "your-secret-key-here"
-
+npx netlify env:set --context production deploy-preview --secret LOOPS_SECRET "your-secret-key-here"
 ```
 
 **For Local Development:**
 Create a `.env` file in the root directory:
 ```
-JWT_SECRET=
+JWT_SECRET=long-generated-password-for-token-signing
 
 CAPTCHA_PROVIDER=recaptcha|hcaptcha|none
 CAPTCHA_THRESHOLD=0.5
 
-RECAPTCHA_SITE_KEY=
+# https://console.cloud.google.com/security/recaptcha/
+RECAPTCHA_SITE_KEY=public-site-key
 RECAPTCHA_SECRET=your-secret-key-here
+
+# https://app.loops.so/settings?page=api
+LOOPS_SECRET=your-secret-key-here
+```
+
+**Via Netlify CLI when .env file is created** 
+```bash
+npx netlify link
+npx netlify env:import .env
 ```
 
 ### 3. Build
