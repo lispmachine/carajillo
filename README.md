@@ -63,6 +63,9 @@ LOOPS_SECRET=your-secret-key-here
 ```bash
 npx netlify link
 npx netlify env:import .env
+npx netlify env:set JWT_SECRET --secret
+npx netlify env:set RECAPTCHA_SECRET --secret
+npx netlify env:set LOOPS_SECRET --secret
 ```
 
 ### 3. Build
