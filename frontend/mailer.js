@@ -32,7 +32,7 @@ async function subscribe() {
 
 async function getCaptchaSiteKey() {
   // @todo CORS
-  const response = await fetch('/.netlify/functions/recaptcha', {
+  const response = await fetch('/api/recaptcha', {
     'Method': 'GET',
     'Accept': 'application/json',
   });
