@@ -15,6 +15,7 @@ const SITE_KEY = process.env.RECAPTCHA_SITE_KEY;
 const SECRET = process.env.RECAPTCHA_SECRET;
 const THRESHOLD = Number.parseFloat(process.env.CAPTCHA_THRESHOLD || '0.5');
 
+// @todo remove
 export const handler = netlify({GET: getSiteKey});
 
 async function getSiteKey() {

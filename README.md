@@ -147,10 +147,10 @@ sequenceDiagram
   participant Loops
   participant MailServer
 
-  UserAgent -->>+ mailer: Get reCAPTCHA site key
+  UserAgent ->>+ mailer: Get reCAPTCHA site key
   mailer -->>- UserAgent: reCAPTCHA site key
   UserAgent ->> reCAPTCHAv3: get reCAPTCHA script
-  note over start user/bot verification in background
+  note over User,UserAgent: start user/bot verification in background
 
   UserAgent -->>+ User: Show subscripton form
 

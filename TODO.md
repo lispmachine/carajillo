@@ -4,3 +4,4 @@
 * [ ] API redirection
 * [x] rename src=>backend dist=>frontend
 * [x] minimize function call - captcha site key file should be generated at build time
+* [ ] json schema for request validation

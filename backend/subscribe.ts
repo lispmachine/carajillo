@@ -1,11 +1,17 @@
 import { HttpError } from './http';
 import { netlify } from './netlify';
 import { validate as recaptchaValidate } from './recaptcha';
+import { upsertContact, sendConfirmationMail } from './loops';
 
+const rootUrl = process.env.URL;
+
+export const handler = netlify({POST: subscribe});
 
 interface SubscribeRequest {
   email : string;
+  language?: string;
   captcha_token: string;
+  mailing_lists: string[];
 };
 
 async function subscribe(request: SubscribeRequest) {
@@ -14,12 +20,33 @@ async function subscribe(request: SubscribeRequest) {
   if (typeof request.captcha_token !== "string")
     throw new HttpError(400, "Missing CAPTCHA token");
 
-  const valid = captcha('subscribe', request.captcha_token);
+  if (request.mailing_lists === undefined) {
+    request.mailing_lists = [];
+  }
+  if (!Array.isArray(request.mailing_lists)) {
+    throw new HttpError(400, "Wrong request");
+  }
+  if (!request.mailing_lists.every((id) => typeof id === 'string')) {
+    throw new HttpError(400, "Wrong request");
+  }
+
+  const {email, mailing_lists, captcha_token, ...properties} = request;
+
+  const valid = captcha('subscribe', captcha_token);
   if (!valid) {
     throw new HttpError(429, 'Try again later');
   }
 
-  return {success: true, req: request};
+  const contact = await upsertContact(email, properties, mailing_lists);
+  if (contact.subscribed) {
+    console.warn(`contact already subscribed: ${contact.email}`);
+    /// @todo check mailing lists
+    return {success: true, contact};
+  }
+
+  const token = '--token--'; /// @todo
+  await sendConfirmationMail(contact.email, `${rootUrl}/subscribe?token=${token}`, properties.language);
+  return {success: true};
 }
 
 interface CaptchaProvider {
@@ -37,5 +64,3 @@ function getCaptchaProvider(provider: string): CaptchaProvider {
       throw new Error(`unsupported CAPTCHA provider: ${provider}`);
   }
 }
-
-export const handler = netlify({POST: subscribe});
