@@ -1,11 +1,8 @@
 import { HttpError } from './http';
-import { netlify } from './netlify';
 import { validate as recaptchaValidate } from './recaptcha';
 import { upsertContact, sendConfirmationMail } from './loops';
 
 const rootUrl = process.env.URL;
-
-export const handler = netlify({POST: subscribe});
 
 interface SubscribeRequest {
   email : string;
@@ -14,7 +11,7 @@ interface SubscribeRequest {
   mailing_lists: string[];
 };
 
-async function subscribe(request: SubscribeRequest) {
+export async function subscribe(request: SubscribeRequest) {
   if (typeof request.email !== "string")
     throw new HttpError(400, "Missing email");
   if (typeof request.captcha_token !== "string")

@@ -1,4 +1,3 @@
-import { netlify } from './netlify';
 import { LoopsClient, APIError, RateLimitExceededError } from "loops";
 
 const API_KEY = process.env.LOOPS_SO_SECRET;
@@ -11,12 +10,6 @@ if (API_KEY === undefined)
   throw new Error('Configuration error');
 
 const loops = new LoopsClient(API_KEY);
-
-export const handler = netlify({
-  GET: getMailingLists,
-});
-
-
 
 /**
  * Get publicly available mailing lists.
