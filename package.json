@@ -16,15 +16,15 @@
   "author": "Łukasz Cieśnik",
   "license": "MIT",
   "dependencies": {
-    "@netlify/functions": "^2.4.0",
+    "@netlify/functions": "^5.1.1",
     "loops": "^6.0.1",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "@types/node-fetch": "^2.6.11",
+    "@types/node": "^25.0.2",
+    "@types/node-fetch": "^2.6.13",
     "dotenv": "^17.2.3",
-    "netlify-cli": "^17.10.1",
-    "typescript": "^5.3.3"
+    "netlify-cli": "^23.12.3",
+    "typescript": "^5.9.3"
   }
 }
