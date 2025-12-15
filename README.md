@@ -26,10 +26,14 @@ Set your reCAPTCHA secret key as an environment variable in Netlify:
 1. Go to your site's settings
 2. Navigate to "Environment variables"
 3. Add variables:
- - `JWT_SECRET`
- - `RECAPTCHA_SITE_KEY`
- - `RECAPTCHA_SECRET`
- - `LOOPS_SECRET`
+ - `JWT_SECRET` - Secret key for JWT token signing
+ - `RECAPTCHA_SITE_KEY` - reCAPTCHA site key (public)
+ - `RECAPTCHA_SECRET` - reCAPTCHA secret key
+ - `LOOPS_SO_SECRET` - Loops.so API key
+ - `CAPTCHA_PROVIDER` - CAPTCHA provider (default: `recaptcha`, options: `recaptcha`, `none`)
+ - `CAPTCHA_THRESHOLD` - CAPTCHA score threshold (default: `0.5`)
+ - `COMPANY_NAME` - Company name for email templates (optional)
+ - `COMPANY_ADDRESS` - Company address for email templates (optional)
 
 **Via Netlify CLI:**
 ```bash
@@ -40,7 +44,7 @@ npx netlify env:set CAPTCHA_PROVIDER recaptcha
 npx netlify env:set RECAPTCHA_SITE_KEY "your-site-key"
 npx netlify env:set --context production deploy-preview --secret RECAPTCHA_SECRET "your-secret-key-here"
 # https://app.loops.so/settings?page=api
-npx netlify env:set --context production deploy-preview --secret LOOPS_SECRET "your-secret-key-here"
+npx netlify env:set --context production deploy-preview --secret LOOPS_SO_SECRET "your-secret-key-here"
 ```
 
 **For Local Development:**
@@ -56,7 +60,11 @@ RECAPTCHA_SITE_KEY=public-site-key
 RECAPTCHA_SECRET=your-secret-key-here
 
 # https://app.loops.so/settings?page=api
-LOOPS_SECRET=your-secret-key-here
+LOOPS_SO_SECRET=your-secret-key-here
+
+# Optional: Company information for email templates
+COMPANY_NAME=Your Company Name
+COMPANY_ADDRESS=Your Company Address
 ```
 
 **Via Netlify CLI when .env file is created** 
@@ -65,7 +73,7 @@ npx netlify link
 npx netlify env:import .env
 npx netlify env:set JWT_SECRET --secret
 npx netlify env:set RECAPTCHA_SECRET --secret
-npx netlify env:set LOOPS_SECRET --secret
+npx netlify env:set LOOPS_SO_SECRET --secret
 ```
 
 ### 3. Build
@@ -97,36 +105,75 @@ Sample subscription form will be available at: `http://localhost:8888/`
 
 ## Usage
 
-### Endpoint
+### Endpoints
 
-`POST /.netlify/functions/subscribe`
+#### GET /api/recaptcha
 
-### Request Body
-
+Retrieve reCAPTCHA site key
+**Response:**
 ```json
 {
-  "token": "reCAPTCHA-response-token-from-client"
+  success: true
+  recaptcha_site_key: "reCAPTCHA-site-key-to-load-google-cloud-API"
 }
 ```
 
-### Success Response
+#### GET /api/subscribe
 
+Retrieves the list of publicly available mailing lists.
+
+**Response:**
+```json
+[
+  {
+    "id": "mailing-list-id",
+    "name": "Newsletter",
+    "description": "Mailing list description",
+    "isPublic": true
+  }
+]
+```
+
+#### POST /api/subscribe
+
+Subscribes an email address to the newsletter with double opt-in.
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "captcha_token": "reCAPTCHA-response-token-from-client",
+  "mailing_lists": ["mailing-list-id-1", "mailing-list-id-2"],
+  "language": "en"
+}
+```
+
+**Request Fields:**
+- `email` (required): Email address to subscribe
+- `captcha_token` (required): reCAPTCHA v3 response token from client
+- `mailing_lists` (optional): Array of mailing list IDs to subscribe to
+- `language` (optional): Language code for email templates (e.g., "en", "pl")
+- Additional properties: Any other contact properties can be included and will be stored in Loops
+
+**Success Response:**
 ```json
 {
   "success": true,
-  "message": "reCAPTCHA validation successful",
-  "challenge_ts": "2024-01-01T12:00:00Z",
-  "hostname": "example.com"
+  "contact": {
+    "id": "contact-id",
+    "email": "user@example.com",
+    "subscribed": true,
+    "mailingLists": {},
+    "optInStatus": "accepted"
+  }
 }
 ```
 
-### Error Response
-
+**Error Response:**
 ```json
 {
   "success": false,
-  "error": "reCAPTCHA validation failed",
-  "error-codes": ["invalid-input-response"]
+  "error": "Error message description"
 }
 ```
 
@@ -226,13 +273,20 @@ sequenceDiagram
 
 ### Error Codes
 
-Common reCAPTCHA error codes:
+Common HTTP error responses:
+- `400 Bad Request`: Invalid request format or missing required fields
+- `405 Method Not Allowed`: HTTP method not supported for the endpoint
+- `429 Too Many Requests`: CAPTCHA validation failed (score below threshold)
+- `500 Internal Server Error`: Server configuration or processing error
+
+Common reCAPTCHA error codes (included in error response):
 - `missing-input-secret`: The secret parameter is missing
 - `invalid-input-secret`: The secret parameter is invalid or malformed
 - `missing-input-response`: The response parameter is missing
 - `invalid-input-response`: The response parameter is invalid or malformed
 - `bad-request`: The request is invalid or malformed
 - `timeout-or-duplicate`: The response is no longer valid (either too old or has been used previously)
+- `action-mismatch`: The CAPTCHA action doesn't match the expected action
 
 ## Project Structure
 
@@ -240,7 +294,7 @@ Common reCAPTCHA error codes:
 .
 ├── backend/                     # Serverless backend source code
 ├── frontend/                    # Frontend source code
-│   └── dist/                    # Publish direcotry (generated)
+│   └── dist/                    # Publish directory (generated)
 │── netlify/functions/           # Netlify functions
 ├── netlify.toml                 # Netlify configuration
 ├── package.json                 # Dependencies
