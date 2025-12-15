@@ -105,6 +105,10 @@ Sample subscription form will be available at: `http://localhost:8888/`
 
 ## Usage
 
+### Including form
+
+TODO: describe including subscription form on site
+
 ### Endpoints
 
 #### GET /api/recaptcha
@@ -177,7 +181,15 @@ Subscribes an email address to the newsletter with double opt-in.
 }
 ```
 
-### Architecture
+### Error Codes
+
+Common HTTP error responses:
+- `400 Bad Request`: Invalid request format or missing required fields
+- `405 Method Not Allowed`: HTTP method not supported for the endpoint
+- `429 Too Many Requests`: Too many subscription requests from IP address or CAPTCHA validation failed (score below threshold)
+- `500 Internal Server Error`: Server configuration or processing error
+
+## Architecture
 
 Principles:
 
@@ -269,35 +281,17 @@ sequenceDiagram
 }
 ```
 
-## API Reference
-
-### Error Codes
-
-Common HTTP error responses:
-- `400 Bad Request`: Invalid request format or missing required fields
-- `405 Method Not Allowed`: HTTP method not supported for the endpoint
-- `429 Too Many Requests`: CAPTCHA validation failed (score below threshold)
-- `500 Internal Server Error`: Server configuration or processing error
-
-Common reCAPTCHA error codes (included in error response):
-- `missing-input-secret`: The secret parameter is missing
-- `invalid-input-secret`: The secret parameter is invalid or malformed
-- `missing-input-response`: The response parameter is missing
-- `invalid-input-response`: The response parameter is invalid or malformed
-- `bad-request`: The request is invalid or malformed
-- `timeout-or-duplicate`: The response is no longer valid (either too old or has been used previously)
-- `action-mismatch`: The CAPTCHA action doesn't match the expected action
-
 ## Project Structure
 
 ```
 .
-├── backend/                     # Serverless backend source code
 ├── frontend/                    # Frontend source code
 │   └── dist/                    # Publish directory (generated)
+├── backend/                     # Serverless backend source code
 │── netlify/functions/           # Netlify functions
 ├── netlify.toml                 # Netlify configuration
 ├── package.json                 # Dependencies
-├── tsconfig.json                # TypeScript configuration
+├── webpack.config.js            # Webpack configuration — used to generate frontend/dist
+├── tsconfig.json                # TypeScript configuration (frontend & backend)
 └── README.md                    # This file
 ```
