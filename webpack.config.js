@@ -14,19 +14,29 @@ require('dotenv').config();
 module.exports = {
   mode: process.env.NODE_ENV === 'develepoment' ? 'development' : 'production',
   entry: {
-    main: path.resolve(__dirname, 'frontend/main.ts'),
+    'subscribe': path.resolve(__dirname, 'frontend/subscribe.ts'),
+    'control-panel': path.resolve(__dirname, 'frontend/control-panel.ts'),
   },
   output: {
     path: path.resolve(__dirname, 'frontend/dist'),
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Subscribe control panel',
-      template: 'frontend/index.html'
+      title: 'Subscribe',
+      filename: 'index.html',
+      template: 'frontend/index.html',
+      chunks: ['subscribe'],
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Subscription control panel',
+      filename: 'control-panel.html',
+      template: 'frontend/control-panel.html',
+      chunks: ['control-panel'],
     }),
     new HtmlWebpackPlugin({
       filename: '404.html',
-      template: 'frontend/404.html'
+      template: 'frontend/404.html',
+      chunks: [],
     }),
     new GenerateJsonPlugin('api/recaptcha', {
       success: true,

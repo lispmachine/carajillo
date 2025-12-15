@@ -7,15 +7,9 @@ export async function main() {
     await loadCaptcha(recaptchaSiteKey);
     await subscribe();
   } catch (error) {
-    document.querySelectorAll<HTMLFormElement>(".subscribe-form").forEach((form) => {
-      const status = form.querySelector<HTMLElement>(".subscribe-status");
-      if (status) {
-        let message = "🙈 Something went wrong.";
-        if (error instanceof Error) {
-          message = `🙈 ${error.message}`;
-        }
-        status.innerText = message;
-      }
+    document.querySelectorAll<HTMLElement>(".subscribe-form .subscribe-status").forEach((status) => {
+        const message = (error instanceof Error) ? error.message : "Something went wrong.";
+        status.innerText = `🙈 ${message}`;
     });
   }
 }
@@ -159,3 +153,5 @@ function confirmLink(email: string): string {
   const domain = email.replace(/.*@/, "");
   return `https://${domain}/`;
 }
+
+main();
