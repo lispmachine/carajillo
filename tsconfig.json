@@ -5,14 +5,12 @@
     "moduleResolution": "node",
     "lib": ["ES2020", "dom"],
     "allowJs": true,
-    "rootDir": "./frontend",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
   },
-  "include": ["frontend/**/*"],
+  "include": ["frontend/**/*", "backend/**/*"],
   "exclude": ["node_modules", "frontend/dist"]
 }
-
