@@ -37,9 +37,12 @@ export async function subscribe(request: SubscribeRequest) {
 
   const contact = await upsertContact(email, properties, mailing_lists);
   if (contact.subscribed) {
-    console.warn(`contact already subscribed: ${contact.email}`);
-    /// @todo check mailing lists
-    return {success: true, contact};
+    console.info(`contact already subscribed: ${contact.email}`);
+    if (mailing_lists.every((requestedMailingList) => contact.mailingLists[requestedMailingList]))
+    {
+      console.info('already subscribed for all requested mailing lists - do not send e-mail');
+      return {success: true, contact};
+    }
   }
 
   const token = createToken(contact.email);

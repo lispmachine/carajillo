@@ -1,5 +1,5 @@
 
-import { sign, verify, Jwt, Algorithm, JsonWebTokenError, TokenExpiredError, NotBeforeError} from 'jsonwebtoken';
+import { sign, verify, JwtPayload, Algorithm, JsonWebTokenError, TokenExpiredError, NotBeforeError} from 'jsonwebtoken';
 import { HttpError } from './http';
 
 const SECRET = process.env.JWT_SECRET;
@@ -9,8 +9,14 @@ const ALGORITHM : Algorithm = 'HS512'; // HMAC with SHA-512 hash
 /// https://datatracker.ietf.org/doc/html/rfc7519
 export function createToken(email: string): string
 {
-  if (SECRET === undefined)
-    throw new HttpError({statusCode: 500, message: "Server configuration error", details: "JWT_SECRET not defined"});
+  if (SECRET === undefined) {
+    throw new HttpError({
+      statusCode: 500,
+      message: "Server configuration error",
+      details: "JWT_SECRET not defined"
+    });
+  }
+
   return sign ({}, SECRET,
     {
       subject: email,
@@ -28,18 +34,23 @@ export function createToken(email: string): string
 /// @return User's email address
 export function validateToken(jwt: string): string
 {
-  if (SECRET === undefined)
-    throw new HttpError({statusCode: 500, message: "Server configuration error", details: "JWT_SECRET not defined"});
+  if (SECRET === undefined) {
+    throw new HttpError({
+      statusCode: 500,
+      message: "Server configuration error",
+      details: "JWT_SECRET not defined"
+    });
+  }
 
   // @todo how to rotate the secret?
-  let decoded: Jwt;
+  let payload: JwtPayload;
   
   try {
-    decoded = verify(jwt, SECRET, {
+    payload = verify(jwt, SECRET, {
       algorithms: [ALGORITHM],
-      complete: true,
+      complete: false,
       // @todo verify audience & issuer
-    });
+    }) as JwtPayload;
   } catch(error) {
     if (error instanceof TokenExpiredError) {
       throw new HttpError({
@@ -60,9 +71,9 @@ export function validateToken(jwt: string): string
     }
   }
 
-  if (decoded.payload.sub === undefined) {
+  if (payload.sub === undefined) {
     throw new HttpError({statusCode: 401, message: 'Unathorized', details: 'Missing token subject'})
   }
 
-  return decoded.payload['sub'];
+  return payload.sub;
 }
