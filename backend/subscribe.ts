@@ -1,11 +1,11 @@
-import { HttpError } from './http';
+import { HttpError } from './error';
 import { verifyCaptcha } from './recaptcha';
 import { upsertContact, sendConfirmationMail } from './loops';
 import { createToken } from './jwt';
 
 const rootUrl = process.env.URL;
 
-interface SubscribeRequest {
+export interface SubscribeRequest {
   email : string;
   language?: string;
   captcha_token: string;
@@ -15,6 +15,7 @@ interface SubscribeRequest {
 export async function subscribe(request: SubscribeRequest) {
   if (typeof request.email !== "string")
     throw new HttpError({statusCode: 400, message: "Missing email"});
+  /// @todo make captcha_token optional
   if (typeof request.captcha_token !== "string")
     throw new HttpError({statusCode: 400, message: "Missing CAPTCHA token"});
 

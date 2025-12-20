@@ -32,17 +32,17 @@ async function subscribe() {
 
 async function getCaptchaSiteKey(): Promise<string> {
   // @todo cross site request
-  const response = await fetch('/api/recaptcha', {
+  const response = await fetch('/api/captcha', {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
     }
   });
   if (response.ok) {
-    const data : {success: boolean; recaptcha_site_key: string} = await response.json();
-    if (typeof data.recaptcha_site_key !== 'string')
+    const data : {success: boolean; provider: string, site_key: string} = await response.json();
+    if (typeof data.site_key !== 'string')
       throw new Error("Cannot retrieve reCAPTCHA site key");
-    return data.recaptcha_site_key;
+    return data.site_key;
   } else {
     throw new Error("Cannot retrieve reCAPTCHA site key");
   }

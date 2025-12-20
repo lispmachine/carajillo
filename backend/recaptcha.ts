@@ -1,10 +1,19 @@
 import fetch from 'node-fetch';
-import { HttpError } from './http';
+import { HttpError } from './error';
+
+const PROVIDER = process.env.CAPTCHA_PROVIDER || 'recaptcha';
+const SITE_KEY = process.env.RECAPTCHA_SITE_KEY;
+const SECRET = process.env.RECAPTCHA_SECRET;
+const THRESHOLD = Number.parseFloat(process.env.CAPTCHA_THRESHOLD || '0.5');
+
+export function configuration() {
+  return {provider: PROVIDER, site_key: SITE_KEY};
+}
 
 interface CaptchaProvider {
   (action: string, token: string): Promise<boolean>;
 }
-export const verifyCaptcha = getCaptchaProvider(process.env.CAPTCHA_PROVIDER || 'recaptcha');
+export const verifyCaptcha = getCaptchaProvider(PROVIDER);
 
 function getCaptchaProvider(provider: string): CaptchaProvider {
   switch (provider) {
@@ -26,9 +35,6 @@ interface RecaptchaResponse {
   'error-codes'?: string[];
 }
 
-// const SITE_KEY = process.env.RECAPTCHA_SITE_KEY;
-const SECRET = process.env.RECAPTCHA_SECRET;
-const THRESHOLD = Number.parseFloat(process.env.CAPTCHA_THRESHOLD || '0.5');
 
 /**
  * Perform the backend site of reCAPTCHA token verification.

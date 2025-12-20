@@ -1,12 +1,16 @@
 
 import { sign, verify, JwtPayload, Algorithm, JsonWebTokenError, TokenExpiredError, NotBeforeError} from 'jsonwebtoken';
-import { HttpError } from './http';
+import { HttpError } from './error';
 
 const SECRET = process.env.JWT_SECRET;
 const ALGORITHM : Algorithm = 'HS512'; // HMAC with SHA-512 hash
 
-/// Create Json Web Token
-/// https://datatracker.ietf.org/doc/html/rfc7519
+/***
+ * Create Json Web Token to authorize future requests.
+ * 
+ * @param email  User's email address
+ * @see https://datatracker.ietf.org/doc/html/rfc7519
+ */
 export function createToken(email: string): string
 {
   if (SECRET === undefined) {
@@ -29,9 +33,12 @@ export function createToken(email: string): string
   );
 }
 
-/// Verifies token signature.
-//  Throws 401 Unauthorized if verification fails.
-/// @return User's email address
+/**
+ * Verify token signature.
+ * 
+ * Throws 401 Unauthorized if verification fails.
+ * @return User's email address
+ */
 export function validateToken(jwt: string): string
 {
   if (SECRET === undefined) {

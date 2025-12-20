@@ -6,7 +6,7 @@
     <title><%= htmlWebpackPlugin.options.title %></title>
   </head>
   <body>
-    <form action="/.netlify/functions/subscribe" method="post" class="subscribe-form">
+    <form action="/api/subscribe" method="post" class="subscribe-form">
       <input type="email" name="email" placeholder="Email">
       <input type="text" name="donotfillout" style="display:none">
       <ul class="mailing-lists">

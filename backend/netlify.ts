@@ -1,5 +1,5 @@
 import { Handler as NetlifyHandler, HandlerEvent as NetlifyEvent, HandlerContext as NetlifyContext } from '@netlify/functions';
-import { HttpError } from './http';
+import { HttpError } from './error';
 
 /**
  * Primary HTTP methods (verbs) for Json API defintions.
