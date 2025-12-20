@@ -55,15 +55,15 @@ export function validateToken(jwt: string): string
     if (error instanceof TokenExpiredError) {
       throw new HttpError({
         statusCode: 401,
-        reason: 'expired-token',
         message: 'Unauthorized',
+        reason: 'expired-token',
         details: error.message,
       })
     } else if (error instanceof JsonWebTokenError || error instanceof NotBeforeError) {
       throw new HttpError({
         statusCode: 401,
-        reason: 'invalid-token',
         message: 'Unauthorized',
+        reason: 'invalid-token',
         details: error.message,
       })
     } else {

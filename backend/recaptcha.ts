@@ -1,6 +1,21 @@
 import fetch from 'node-fetch';
 import { HttpError } from './http';
-import { error } from 'node:console';
+
+interface CaptchaProvider {
+  (action: string, token: string): Promise<boolean>;
+}
+export const verifyCaptcha = getCaptchaProvider(process.env.CAPTCHA_PROVIDER || 'recaptcha');
+
+function getCaptchaProvider(provider: string): CaptchaProvider {
+  switch (provider) {
+    case 'recaptcha':
+      return verifyRecaptchaToken;
+    case 'none':
+      return async (action: string, token: string) => { return true; };
+    default:
+      throw new Error(`unsupported CAPTCHA provider: ${provider}`);
+  }
+}
 
 interface RecaptchaResponse {
   success: boolean;
@@ -22,8 +37,8 @@ const THRESHOLD = Number.parseFloat(process.env.CAPTCHA_THRESHOLD || '0.5');
  * @param token  CAPTCHA token preseneted by User Agent
  * @returns true if user passed the test (score >= CAPTCHA_THRESHOLD)
  */
-export async function validate(action: string, token: string): Promise<boolean> {
-  const captcha = await verifyToken(token);
+async function verifyRecaptchaToken(action: string, token: string): Promise<boolean> {
+  const captcha = await sendVerificationRequest(token);
   console.log(`CAPTCHA: score=${captcha.score} action=${captcha.action} challenge_ts=${captcha.challenge_ts} hostname=${captcha.hostname}`);
 
   if (captcha['error-codes']) {
@@ -38,15 +53,15 @@ export async function validate(action: string, token: string): Promise<boolean> 
     if (errorCodes.includes('invalid-input-response')) {
       throw new HttpError({
         statusCode: 400,
-        reason: 'bad-captcha',
         message: 'Bad request',
+        reason: 'bad-captcha',
         details: `CAPTCHA error: ${errorCodes.join(', ')}`,
       });
     } else if (errorCodes.includes('timeout-or-duplicate')) {
       throw new HttpError({
         statusCode: 429,
-        reason: 'captcha-timeout',
         message: 'Try again',
+        reason: 'captcha-timeout',
         details: `CAPTCHA error: ${errorCodes.join(', ')}`,
       });
     } else {
@@ -63,8 +78,8 @@ export async function validate(action: string, token: string): Promise<boolean> 
     console.error(`CAPTION action does not match: expected=${action} actual=${captcha.action}`);
     throw new HttpError({
       statusCode: 400,
-      reason: 'captcha-action-mismatch',
       message: 'Bad reqeust',
+      reason: 'captcha-action-mismatch',
       details: "CAPTCHA error: action-mismatch"
     });
   }
@@ -82,7 +97,7 @@ export async function validate(action: string, token: string): Promise<boolean> 
  * @param token  reCAPTCHA token
  * @return reCAPTCHA REST API resoponse
  */
-export async function verifyToken(token: string): Promise<RecaptchaResponse> {
+export async function sendVerificationRequest(token: string): Promise<RecaptchaResponse> {
   if (!SECRET) {
     console.error('RECAPTCHA_SECRET environment variable is not set');
     throw new Error('Server configuration error');

@@ -1,5 +1,5 @@
 import { HttpError } from './http';
-import { validate as recaptchaValidate } from './recaptcha';
+import { verifyCaptcha } from './recaptcha';
 import { upsertContact, sendConfirmationMail } from './loops';
 import { createToken } from './jwt';
 
@@ -30,9 +30,13 @@ export async function subscribe(request: SubscribeRequest) {
 
   const {email, mailing_lists, captcha_token, ...properties} = request;
 
-  const valid = captcha('subscribe', captcha_token);
+  const valid = verifyCaptcha('subscribe', captcha_token);
   if (!valid) {
-    throw new HttpError({statusCode: 429, message: 'Try again later'});
+    throw new HttpError({
+      statusCode: 429,
+      message: 'Try again later',
+      details: 'Requestor categorized as bot'
+    });
   }
 
   const contact = await upsertContact(email, properties, mailing_lists);
@@ -48,20 +52,4 @@ export async function subscribe(request: SubscribeRequest) {
   const token = createToken(contact.email);
   await sendConfirmationMail(contact.email, `${rootUrl}/subscribe?token=${token}`, properties.language);
   return {success: true};
-}
-
-interface CaptchaProvider {
-  (action: string, token: string): Promise<boolean>;
-}
-const captcha = getCaptchaProvider(process.env.CAPTCHA_PROVIDER || 'recaptcha');
-
-function getCaptchaProvider(provider: string): CaptchaProvider {
-  switch (provider) {
-    case 'recaptcha':
-      return recaptchaValidate;
-    case 'none':
-      return async (action: string, token: string) => { return true; };
-    default:
-      throw new Error(`unsupported CAPTCHA provider: ${provider}`);
-  }
 }
