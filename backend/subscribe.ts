@@ -91,7 +91,7 @@ export async function getSubscription(email: string): Promise<SubscriptionStatus
     email: contact.email,
     subscribed: contact.subscribed,
     mailingLists: availableMailingLists.map((list) => ({
-      subscribed: contact.mailingLists[list.id],
+      subscribed: contact.mailingLists[list.id] || false,
       ...list
     }))
   };

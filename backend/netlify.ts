@@ -1,3 +1,4 @@
+// @todo remove
 import { Handler as NetlifyHandler, HandlerEvent as NetlifyEvent, HandlerContext as NetlifyContext } from '@netlify/functions';
 import { HttpError } from './error';
 

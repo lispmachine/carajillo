@@ -1,4 +1,4 @@
-import { ErrorRequestHandler } from "express";
+import { ErrorRequestHandler, Response } from "express";
 
 export interface HttpErrorProperties {
   statusCode: number;
@@ -25,17 +25,25 @@ export class HttpError extends Error {
     this.reason = props.reason;
     this.details = props.details;
   }
+
+  respond(res: Response) {
+    console.warn(`HTTP/1.1 ${this.statusCode} ${this.reason} ${this.message}; ${this.details}`);
+    res.status(this.statusCode).json({
+      success: false,
+      error: this.message,
+      reason: this.reason
+    })
+  }
 }
 
 export const middleware : ErrorRequestHandler = (err, req, res, next) => {
   if (err instanceof HttpError) {
-    console.error(`${err.statusCode} ${err.reason} ${err.message}; ${err.details}`);
+    err.respond(res);
+  } else {
+    console.error('unhandled exception', err);
+    res.status(500).json({
+      success: false,
+      error: err instanceof Error ? err.message : 'Unknown error occurred'
+    });
   }
-  const statusCode = err instanceof HttpError ? err.statusCode : 500;
-  const response = {
-    success: false,
-    error: err instanceof Error ? err.message : 'Unknown error occurred',
-    reason: err instanceof HttpError ? err.reason : undefined
-  };
-  res.status(statusCode).json(response);
 } 

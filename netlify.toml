@@ -7,6 +7,12 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Don't use referer to limit the access token exposure
+    Referrer-Policy = "no-referrer"
+
 # reCAPTCHA site key is exposed at build time
 [[headers]]
   for = "/api/captcha"
