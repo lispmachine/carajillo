@@ -20,7 +20,7 @@ export async function getMailingLists() {
 }
 
 
-interface Contact {
+export interface Contact {
   id: string;
   email: string;
   subscribed: boolean;
@@ -28,7 +28,7 @@ interface Contact {
    * Mailing lists the contact is subscribed to.
    * @see https://loops.so/docs/contacts/mailing-lists
    */
-  mailingLists: Record<string, boolean>;
+  mailingLists: MailingLists;
   /**
    * The contact's double opt-in status.
    * @see https://loops.so/docs/contacts/double-opt-in
@@ -36,10 +36,38 @@ interface Contact {
   optInStatus: "pending" | "accepted" | "rejected" | null;
 }
 
+type MailingLists = Record<string, boolean>;
 type ContactProperties = Record<string, string | number | boolean | null>;
 
+/**
+ * Find contact by e-mail
+ * @see https://loops.so/docs/api-reference/find-contact
+ */
+export async function findContact(email: string): Promise<Contact | null> {
+  const matchingContacts = await loops.findContact({email});
+  if (matchingContacts.length === 0) {
+    return null;
+  } else {
+    const found = matchingContacts[0];
+    // @todo do not limit returned properties?
+    return {
+      id: found.id,
+      email: found.email,
+      subscribed: found.subscribed,
+      mailingLists: found.mailingLists,
+      optInStatus: found.optInStatus,
+    };
+  }
+}
+
+/**
+ * Create or update contact.
+ * @param email            Contact e-mail address 
+ * @param properties       Extra contact properties (firstName, lastName, userGroup etc.)
+ * @param mailingListsIds  Initial mailing list
+ * @see https://loops.so/docs/api-reference/create-contact
+ */
 export async function upsertContact(email: string, properties: ContactProperties, mailingListsIds: string[]): Promise<Contact> {
-  let contact :Contact;
   const matchingContacts = await loops.findContact({email});
   if (matchingContacts.length === 0) {
     const mailingLists = Object.fromEntries(mailingListsIds.map(listId => [listId, true]));
@@ -56,12 +84,25 @@ export async function upsertContact(email: string, properties: ContactProperties
   }
 }
 
-export async function subscribeContact(email: string): Promise<void> {
-  // @todo mailing lists
-  await loops.updateContact({email, properties: {
-    subscribed: true,
-    optInStatus: 'accepted'
-  }});
+export async function subscribeContact(email: string, mailingLists: MailingLists): Promise<void> {
+  await loops.updateContact({
+    email,
+    properties: {
+      subscribed: true,
+      optInStatus: 'accepted'
+    },
+    mailingLists,
+  });
+}
+
+export async function unsubscribeContact(email: string): Promise<void> {
+  await loops.updateContact({
+    email,
+    properties: {
+      subscribed: false,
+      optInStatus: 'rejected'
+    },
+  });
 }
 
 export async function sendConfirmationMail(email: string, confirmUrl: string, language?: string)

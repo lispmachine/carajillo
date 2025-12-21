@@ -53,6 +53,7 @@ export function validateToken(jwt: string): string
   let payload: JwtPayload;
   
   try {
+    console.log(`jwt: token=${jwt}`);
     payload = verify(jwt, SECRET, {
       algorithms: [ALGORITHM],
       complete: false,

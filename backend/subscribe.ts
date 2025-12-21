@@ -1,6 +1,6 @@
 import { HttpError } from './error';
 import { verifyCaptcha } from './recaptcha';
-import { upsertContact, sendConfirmationMail } from './loops';
+import { Contact, findContact, upsertContact, sendConfirmationMail, subscribeContact, unsubscribeContact, getMailingLists } from './loops';
 import { createToken } from './jwt';
 
 const rootUrl = process.env.URL;
@@ -12,6 +12,13 @@ export interface SubscribeRequest {
   mailing_lists: string[];
 };
 
+/**
+ * First step of e-mail subscrition.
+ *
+ * At this stage email is not confirmed to be valid.
+ * It sends confirmation e-mail (if it does not exist already)
+ * and protects the entry with CAPTCHA mechanizm.
+ */
 export async function subscribe(request: SubscribeRequest) {
   if (typeof request.email !== "string")
     throw new HttpError({statusCode: 400, message: "Missing email"});
@@ -51,6 +58,67 @@ export async function subscribe(request: SubscribeRequest) {
   }
 
   const token = createToken(contact.email);
-  await sendConfirmationMail(contact.email, `${rootUrl}/subscribe?token=${token}`, properties.language);
-  return {success: true};
+  const params = new URLSearchParams({token});
+  if (properties.language !== undefined) {
+    params.set('lang', properties.language)
+  }
+  await sendConfirmationMail(contact.email, `${rootUrl}/control-panel?${params}`, properties.language);
+
+  return {success: true, email};
+}
+
+
+export interface SubscriptionStatus {
+  success: true;
+  email: string;
+  subscribed: boolean;
+  mailingLists: {
+    id: string;
+    name: string;
+    description: string | null;
+    subscribed: boolean;
+  }[];
+}
+
+export async function getSubscription(email: string): Promise<SubscriptionStatus> {
+  const contact = await findContact(email);
+  if (contact === null) {
+    throw new HttpError({statusCode: 404, message: 'Contact not found'});
+  }
+  const availableMailingLists = await getMailingLists();
+  return {
+    success: true,
+    email: contact.email,
+    subscribed: contact.subscribed,
+    mailingLists: availableMailingLists.map((list) => ({
+      subscribed: contact.mailingLists[list.id],
+      ...list
+    }))
+  };
+}
+
+
+export interface SetSubscriptionRequest {
+  email: string;
+
+  /**
+   * Subscribes (true) or unsubscribes (false) contact.
+   * @see https://loops.so/docs/contacts/properties#subscribed
+   */
+  subscribe: boolean;
+
+  /**
+   * Individual mailing list subscription.
+   * @see https://loops.so/docs/contacts/mailing-lists
+   */
+  mailingLists: Record<string, boolean>;
+}
+
+export async function setSubscription({email, subscribe, mailingLists}: SetSubscriptionRequest) {
+  if (subscribe) {
+    await subscribeContact(email, mailingLists);   
+  } else {
+    await unsubscribeContact(email);
+  }
+  return {success: true, email, subscribed: subscribe};
 }

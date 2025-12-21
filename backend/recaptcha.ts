@@ -71,12 +71,11 @@ async function verifyRecaptchaToken(action: string, token: string): Promise<bool
         details: `CAPTCHA error: ${errorCodes.join(', ')}`,
       });
     } else {
-     throw new HttpError({
-       statusCode: 500,
-       message: 'Internal server error',
-       details: `CAPTCHA error: ${errorCodes.join(', ')}`
-     });
-
+      throw new HttpError({
+        statusCode: 500,
+        message: 'Internal server error',
+        details: `CAPTCHA error: ${errorCodes.join(', ')}`
+      });
     }
   }
 
@@ -89,6 +88,8 @@ async function verifyRecaptchaToken(action: string, token: string): Promise<bool
       details: "CAPTCHA error: action-mismatch"
     });
   }
+
+  // @todo verify hostname, with list of CORS hosts 
 
   if(captcha.score < THRESHOLD) {
     console.warn(`CAPTCHA score below threshold ${captcha.score}`);

@@ -23,9 +23,16 @@ interface MailingList {
      * The list's description.
      */
     description: string | null;
+
+    subscribed: boolean;
 }
 
-type SubscriptionResponse = MailingList[];
+export interface SubscriptionStatus {
+  success: boolean;
+  email: string;
+  subscribed: boolean;
+  mailingLists: MailingList[];
+}
 
 @customElement('mailer-subscription-control')
 export class Subscription extends LitElement {
@@ -46,9 +53,15 @@ export class Subscription extends LitElement {
 
   _fetchSubscriptionsTask = new Task(this, {
     task: async ([token, settings], {signal}) => {
-      const response = await fetch(`/api/subscribe`, {signal});
-      if (!response.ok) { throw new Error(`HTTP ${response.status}`); }
-      return await response.json() as SubscriptionResponse;
+      const response = await fetch(`/api/subscribe`, {
+        headers: {Authorization: `Bearer ${token}`},
+        signal
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      // @todo handle token refresh
+      return await response.json() as SubscriptionStatus;
     },
     args: () => [this.token, this.settings]
   });
@@ -56,7 +69,7 @@ export class Subscription extends LitElement {
   render() {
     return this._fetchSubscriptionsTask.render({
       pending: () => html`<md-circular-progress four-color indeterminate></md-circular-progress>`,
-      complete: (mailingLists) => html`
+      complete: (status) => html`
         <div style="width:20rem">
           <md-list>
             <md-list-item type="button">
@@ -66,7 +79,7 @@ export class Subscription extends LitElement {
               </div>
             </md-list-item>
             ${repeat(
-              mailingLists,
+              status.mailingLists,
               (list) => list.id,
               (list, index) => html`
                 <mailer-list-subscription id=${list.id} name=${list.name} description=${list.description} ?disabled=${!this.subscribed}>
