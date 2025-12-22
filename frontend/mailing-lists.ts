@@ -1,20 +1,17 @@
 
-import {LitElement, html, css, PropertyDeclarations} from 'lit';
-import {customElement, property} from 'lit/decorators.js';
-import {Task} from '@lit/task';
-import {repeat} from 'lit/directives/repeat.js';
-import {consume} from '@lit/context';
-import {Settings, tokenContext, settingsContext} from './context';
-import {MdSwitch} from '@material/web/switch/switch';
-import {SubscriptionStatus, UpdateSubscriptionRequest} from '../backend/subscribe';
+import { LitElement, html, css } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import { query } from 'lit/decorators/query.js';
+import { queryAll } from 'lit/decorators/query-all.js';
+import { repeat } from 'lit/directives/repeat.js';
+import { Task } from '@lit/task';
+import { consume } from '@lit/context';
+import { MdSwitch } from '@material/web/switch/switch';
+import { apiRoot, Settings, tokenContext, settingsContext } from './context';
+import { SubscriptionStatus, UpdateSubscriptionRequest } from '../backend/subscribe';
 
 @customElement('mailer-subscription-control')
 export class Subscription extends LitElement {
-  static properties = {
-    data: { type: Object, attribute: false },
-    autosubscribe: { type: Boolean },
-  }
-
   @consume({context: tokenContext})
   @property({attribute: false})
   private token?: string;
@@ -24,8 +21,22 @@ export class Subscription extends LitElement {
   @property({attribute: false})
   public settings?: Settings;
 
-  data?: SubscriptionStatus;
-  autosubscribe?: boolean = true;
+  @property({
+    attribute: false,
+    hasChanged: (a: any, b: any) => JSON.stringify(a) !== JSON.stringify(b)
+  })
+  public data?: SubscriptionStatus;
+
+  @property({type: Boolean})
+  public autosubscribe?: boolean = true;
+
+  @query('#subscribe')
+  private subscribeSwitch?: MdSwitch;
+
+  @queryAll('mailer-list-subscription')
+  private mailingListItems?: NodeListOf<ListSubscription>;
+
+  // @todo update name?
 
   // @todo autosubscribe
   // https://lit.dev/docs/components/events/#adding-event-listeners-to-other-elements
@@ -69,19 +80,19 @@ export class Subscription extends LitElement {
       if (token === undefined) {
         throw new Error('missing authorization token');
       }
-      if (data === undefined)
+      if (this.data === undefined)
         return;
       
-      const email = data.email;
-      const subscribe : boolean = this.querySelector<MdSwitch>('#subscribe')?.selected || false;
+      const email = this.data.email;
+      const subscribe : boolean = this.subscribeSwitch?.selected || false;
       const mailingLists : Record<string, boolean> = {};
-      this.querySelectorAll<ListSubscription>('mailer-list-subscription').forEach((list) => {
+      this.mailingListItems?.forEach((list) => {
         mailingLists[list.id] = list.subscribed;
       })
 
       const request : UpdateSubscriptionRequest = {email, subscribe, mailingLists};
       try {
-        const response = await fetch(`/api/subscribe`, {
+        const response = await fetch(`${apiRoot}/subscribe`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${this.token}`,
@@ -93,6 +104,11 @@ export class Subscription extends LitElement {
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
+
+        this.data.subscribed = subscribe;
+        this.data.mailingLists.forEach((list) => {
+          list.subscribed = mailingLists[list.id];
+        });
       } catch (error) {
         this.dispatchEvent(new CustomEvent('error', {detail: {error}}));
       }
@@ -103,30 +119,6 @@ export class Subscription extends LitElement {
 
   private async onChange(e: Event) {
     this.updateSubscriptionTask.run();
-    //if (this.data === undefined)
-    //  return;
-    //const email = this.data.email;
-    //const subscribe : boolean = this.querySelector<MdSwitch>('#subscribe')?.selected || false;
-    //const mailingLists : Record<string, boolean> = {};
-    //this.querySelectorAll<ListSubscription>('mailer-list-subscription').forEach((list) => {
-    //  mailingLists[list.id] = list.subscribed;
-    //})
-
-    //const request : UpdateSubscriptionRequest = {email, subscribe, mailingLists};
-    //try {
-    //  // @todo show processing state
-    //  await fetch(`/api/subscribe`, {
-    //    method: 'PUT',
-    //    headers: {
-    //      'Authorization': `Bearer ${this.token}`,
-    //      'Accept': 'application/json',
-    //      'Content-Type': 'application/json; charset=utf-8',
-    //    },
-    //    body: JSON.stringify(request)
-    //  });
-    //} catch (error) {
-    //  this.dispatchEvent(new CustomEvent('error', {detail: {error}}));
-    //}
   }
 }
 

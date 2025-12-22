@@ -1,13 +1,21 @@
 import fetch from 'node-fetch';
 import { HttpError } from './error';
 
-const PROVIDER = process.env.CAPTCHA_PROVIDER || 'recaptcha';
-const SITE_KEY = process.env.RECAPTCHA_SITE_KEY;
+const PROVIDER : Provider = (process.env.CAPTCHA_PROVIDER || 'recaptcha') as Provider;
+const SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '';
 const SECRET = process.env.RECAPTCHA_SECRET;
 const THRESHOLD = Number.parseFloat(process.env.CAPTCHA_THRESHOLD || '0.5');
 
-export function configuration() {
-  return {provider: PROVIDER, site_key: SITE_KEY};
+export type Provider = 'recaptcha' | 'hcaptcha' | 'none';
+
+export interface CaptchaConfiguration {
+  success: true;
+  provider: Provider;
+  site_key: string;
+}
+
+export function configuration() : CaptchaConfiguration {
+  return {success: true, provider: PROVIDER, site_key: SITE_KEY};
 }
 
 interface CaptchaProvider {
@@ -15,7 +23,7 @@ interface CaptchaProvider {
 }
 export const verifyCaptcha = getCaptchaProvider(PROVIDER);
 
-function getCaptchaProvider(provider: string): CaptchaProvider {
+function getCaptchaProvider(provider: Provider): CaptchaProvider {
   switch (provider) {
     case 'recaptcha':
       return verifyRecaptchaToken;
@@ -45,7 +53,7 @@ interface RecaptchaResponse {
  */
 async function verifyRecaptchaToken(action: string, token: string): Promise<boolean> {
   const captcha = await sendVerificationRequest(token);
-  console.log(`CAPTCHA: score=${captcha.score} action=${captcha.action} challenge_ts=${captcha.challenge_ts} hostname=${captcha.hostname}`);
+  console.info(`CAPTCHA: score=${captcha.score} action=${captcha.action} challenge_ts=${captcha.challenge_ts} hostname=${captcha.hostname}`);
 
   if (captcha['error-codes']) {
     // missing-input-secret   - The secret parameter is missing.

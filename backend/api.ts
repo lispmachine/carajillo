@@ -55,7 +55,7 @@ router.put("/subscribe", async (req, res) => {
 // Those are prebuilt on Netlify and should not be serverd by function.
 // This is just a backup in case the app is served outside of Netlify.
 router.get("/captcha", async (req, res) => {
-  res.json({success: true, ...captchaConfiguration(), generated: true});
+  res.json(captchaConfiguration());
 });
 
 router.get("/lists", async (req, res) => {

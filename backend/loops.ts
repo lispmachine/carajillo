@@ -49,6 +49,7 @@ export async function findContact(email: string): Promise<Contact | null> {
     return null;
   } else {
     const found = matchingContacts[0];
+    console.log(`findContact: ${JSON.stringify(found)}`);
     // @todo do not limit returned properties?
     return {
       id: found.id,
@@ -108,6 +109,7 @@ export async function unsubscribeContact(email: string): Promise<void> {
 export async function sendConfirmationMail(email: string, confirmUrl: string, language?: string)
 {
   const confirmationEmail = await findDoubleOptInEmail(language);
+  console.log(`Sending ${confirmationEmail.name} to ${email} with ${confirmUrl}`);
   loops.sendTransactionalEmail({
     email: email,
     transactionalId: confirmationEmail.id,
@@ -146,7 +148,6 @@ async function findDoubleOptInEmail(language?: string) {
   if (language) {
     const translated = doubleOptInEmails.filter((email) => email.name.includes(`#${language.toUpperCase()}`))
     if (translated.length > 0) {
-      console.log(`sending ${translated[0].name} `);
       return translated[0];
     }
   }

@@ -1,14 +1,15 @@
-import './mailing-lists';
 
 import '@material/web/all.js'; // @todo minimize imports
 import '@material/web/icon/icon';
 
-import {LitElement, html} from 'lit';
-import {customElement} from 'lit/decorators.js';
-import {provide} from '@lit/context';
-import {Task} from '@lit/task';
-import {Settings, tokenContext, settingsContext} from './context';
-import {SubscriptionStatus} from '../backend/subscribe';
+import './mailing-lists';
+
+import { LitElement, html } from 'lit';
+import { customElement } from 'lit/decorators.js';
+import { provide } from '@lit/context';
+import { Task } from '@lit/task';
+import { Settings, apiRoot, tokenContext, settingsContext } from './context';
+import { SubscriptionStatus } from '../backend/subscribe';
 
 const query = new URLSearchParams(window.location.search);
 function getToken(): string | undefined {
@@ -40,7 +41,7 @@ export class ControlPanel extends LitElement {
       if (token === undefined) {
         throw new Error('missing authorization token');
       }
-      const response = await fetch(`/api/subscribe`, {
+      const response = await fetch(`${apiRoot}/subscribe`, {
         headers: {Authorization: `Bearer ${token}`},
         signal
       });
@@ -56,7 +57,9 @@ export class ControlPanel extends LitElement {
   render() {
     return this.fetchSubscriptionTask.render({
       pending: () => html`<md-circular-progress four-color indeterminate></md-circular-progress>`,
-      complete: (status) => html`<mailer-subscription-control data=${status}></mailer-subscription-control>`,
+      complete: (status) => {
+        return html`<mailer-subscription-control .data=${status} ></mailer-subscription-control>`;
+      },
       error: (error) => html`<md-suggestion-chip><md-icon slot="icon">error</md-icon>${error}</md-suggestion-chip>`
     });
   }

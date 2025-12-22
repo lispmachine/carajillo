@@ -19,3 +19,6 @@ export interface Settings {
   event?: string;
 }
 export const settingsContext = createContext<Settings>('settings');
+
+const currentScriptOrigin: string = document.currentScript ? new URL((document.currentScript as HTMLScriptElement).src).origin : '';
+export const apiRoot = `${currentScriptOrigin}/api`;

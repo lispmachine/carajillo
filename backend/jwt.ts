@@ -16,7 +16,7 @@ const ALGORITHM : Algorithm = 'HS512'; // HMAC with SHA-512 hash
  * @param email  User's email address
  * @see https://datatracker.ietf.org/doc/html/rfc7519
  */
-export function createToken(email: string, issuer: string): string
+export function createToken(email: string, issuer: URL): string
 {
   if (SECRET === undefined) {
     throw new HttpError({
@@ -28,10 +28,11 @@ export function createToken(email: string, issuer: string): string
 
   const options : SignOptions = {
       subject: email,
-      issuer: issuer,
+      issuer: issuer.hostname,
       algorithm: ALGORITHM,
       expiresIn: TOKEN_EXPIRATION,
   };
+  console.log('creating token', options);
 
   return sign ({}, SECRET, options);
 }
@@ -44,7 +45,7 @@ export function authenticate(req: Request): string {
   // @todo WWW-Authenticate header?
 
   console.log(`token=${token}`);
-  return validateToken(token[1], `${req.protocol}://${req.hostname}`);
+  return validateToken(token[1], req.hostname);
 }
 
 /**

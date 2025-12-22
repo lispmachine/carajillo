@@ -1,3 +1,5 @@
+import { apiRoot } from "./context";
+
 let recaptchaSiteKey: string | null = null;
 
 export async function main() {
@@ -31,8 +33,7 @@ async function subscribe() {
 }
 
 async function getCaptchaSiteKey(): Promise<string> {
-  // @todo cross site request
-  const response = await fetch('/api/captcha', {
+  const response = await fetch(`${apiRoot}/captcha`, {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
