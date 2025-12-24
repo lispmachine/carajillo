@@ -32,7 +32,7 @@ export function createToken(email: string, issuer: URL): string
       algorithm: ALGORITHM,
       expiresIn: TOKEN_EXPIRATION,
   };
-  console.log('creating token', options);
+  console.debug('createToken', options);
 
   return sign ({}, SECRET, options);
 }
@@ -44,7 +44,6 @@ export function authenticate(req: Request): string {
     throw new HttpError({statusCode: 401, message: 'Unauthorized'});
   // @todo WWW-Authenticate header?
 
-  console.log(`token=${token}`);
   return validateToken(token[1], req.hostname);
 }
 
@@ -68,7 +67,7 @@ export function validateToken(jwt: string, issuer: string): string
   let payload: JwtPayload;
   
   try {
-    console.log(`jwt: token=${jwt}`);
+    console.debug('validateToken', jwt);
     payload = verify(jwt, SECRET, {
       algorithms: [ALGORITHM],
       complete: false,

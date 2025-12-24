@@ -23,7 +23,7 @@ npm install
 Set your reCAPTCHA secret key as an environment variable in Netlify:
 
 **Via Netlify Dashboard:**
-1. Go to your site's settings
+1. Go to your site's settings (https://app.netlify.com/ » choose project » project configuration)
 2. Navigate to "Environment variables"
 3. Add variables:
  - `JWT_SECRET` - Secret key for JWT token signing
@@ -104,6 +104,18 @@ npm run dev
 Sample subscription form will be available at: `http://localhost:8888/`
 
 ## Usage
+
+### Double opt-in on loops
+As of right now (December 2025) the built-in loops mechanizm for e-mail confirmation ([Double opt-in](https://loops.so/docs/contacts/double-opt-in))
+is only supported when subscribing through forms.  API can read the `optInStatus` but cannot update it.
+To circumvent this issue you need to keep the loops double opt-in mechanizm disabled.
+Go to [sending options](https://app.loops.so/settings?page=sending) and make sure the `New contacts confirm subscription by email` option is disabled.
+
+Instead the mailer will use it's own mechanizm with custom `xOptInStatus` property.
+It will search for transactional e-mail with `{optInUrl}` data variable.
+You can translate confirmation email into multiple languages.
+Mailer will try to find right translation by email name.
+
 
 ### Including form
 
