@@ -2,13 +2,13 @@
 import express, { Router } from "express";
 import { middleware as errorMiddleware, HttpError } from "./error";
 import { middleware as openApiValidator } from "express-openapi-validator";
-import path from "path";
 
 import { authenticate } from "./jwt";
 import { subscribe, getSubscription, updateSubscription } from "./subscribe"
 import type { SubscribeRequest, UpdateSubscriptionRequest } from "./subscribe";
 import { getMailingLists } from "./loops";
 import { configuration as captchaConfiguration } from "./recaptcha";
+import { openApiSpec } from "./openapi-spec";
 
 export const app = express();
 
@@ -29,7 +29,7 @@ app.set('trust proxy', true);
 app.set('query parser', 'simple');
 
 const apiSpecValidator = openApiValidator({
-  apiSpec: path.join(__dirname, "openapi.yaml"),
+  apiSpec: openApiSpec,
   validateRequests: true,
   validateResponses: false, // Set to true in development for response validation
   validateSecurity: false, // We handle JWT validation manually in authenticate()
