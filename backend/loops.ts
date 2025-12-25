@@ -24,6 +24,8 @@ export async function initialize() {
     if (!properties.some((prop) => prop.key === name)) {
       console.info(`creating ${name} property`);
       loops.createContactProperty(name, type);
+    } else {
+      console.log(`property ${name} already exists`);
     }
   };
 
@@ -32,6 +34,8 @@ export async function initialize() {
 
   // Custom double opt-in status - 'pending', 'accepted' or 'rejected'.
   upsertProperty('xOptInStatus', 'string');
+
+  console.info('loops initialized successfully');
 }
 
 /**
@@ -54,13 +58,16 @@ export interface Contact {
   mailingLists: MailingLists;
   /**
    * The contact's double opt-in status.
+   * Custom `xOptInStatus` property.
+   * @see See README.md for details
    * @see https://loops.so/docs/contacts/double-opt-in
    */
-  optInStatus: "pending" | "accepted" | "rejected" | null;
+  optInStatus: DoubleOptInStatus;
 }
 
 type MailingLists = Record<string, boolean>;
 type ContactProperties = Record<string, string | number | boolean | null>;
+type DoubleOptInStatus = "pending" | "accepted" | "rejected" | null;
 
 /**
  * Find contact by e-mail
@@ -73,14 +80,8 @@ export async function findContact(email: string): Promise<Contact | null> {
   } else {
     const found = matchingContacts[0];
     console.log(`findContact: ${JSON.stringify(found)}`);
-    // @todo do not limit returned properties?
-    return {
-      id: found.id,
-      email: found.email,
-      subscribed: found.subscribed,
-      mailingLists: found.mailingLists,
-      optInStatus: found.optInStatus,
-    };
+    found.optInStatus = found.xOptInStatus as DoubleOptInStatus;
+    return found;
   }
 }
 
@@ -95,16 +96,23 @@ export async function upsertContact(email: string, properties: ContactProperties
   const matchingContacts = await loops.findContact({email});
   if (matchingContacts.length === 0) {
     const mailingLists = Object.fromEntries(mailingListsIds.map(listId => [listId, true]));
-    const createResponse = await loops.createContact({email, properties, mailingLists});
+    const createResponse = await loops.createContact({
+      email,
+      properties: {xOptInStatus: 'pending', ...properties},
+      mailingLists,
+    });
     return {
       id: createResponse.id,
       email,
       mailingLists,
       subscribed: false,
       optInStatus: 'pending',
+      ...properties
     };
   } else {
-    return matchingContacts[0];
+    const found = matchingContacts[0];
+    found.optInStatus = found.xOptInStatus as DoubleOptInStatus;
+    return found;
   }
 }
 
@@ -113,7 +121,7 @@ export async function subscribeContact(email: string, mailingLists: MailingLists
     email,
     properties: {
       subscribed: true,
-      optInStatus: 'accepted'
+      xOptInStatus: 'accepted'
     },
     mailingLists,
   });
@@ -124,7 +132,7 @@ export async function unsubscribeContact(email: string): Promise<void> {
     email,
     properties: {
       subscribed: false,
-      optInStatus: 'rejected'
+      xOptInStatus: 'rejected'
     },
   });
 }
