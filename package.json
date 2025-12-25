@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Newsletter subscription management for loops.so",
   "scripts": {
-    "generate:openapi": "node scripts/generate-openapi-spec.js",
-    "prebuild": "npm run generate:openapi",
+    "prebuild": "npm run build:openapi && npm run build:localize",
     "build": "webpack",
+    "build:localize": "lit-localize build",
+    "build:openapi": "node scripts/generate-openapi-spec.js",
     "dev": "netlify dev -c 'webpack --watch'",
     "check": "tsc --noEmit"
   },
@@ -33,6 +34,7 @@
     "serverless-http": "^4.0.0"
   },
   "devDependencies": {
+    "@lit/localize-tools": "^0.8.1",
     "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.0.2",

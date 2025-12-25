@@ -11,7 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "useDefineForClassFields": false,
+    "useDefineForClassFields": false
   },
   "include": ["frontend/**/*", "backend/**/*"],
   "exclude": ["node_modules", "frontend/dist"]

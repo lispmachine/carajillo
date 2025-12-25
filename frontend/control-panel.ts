@@ -9,9 +9,9 @@ import { customElement } from 'lit/decorators.js';
 import { provide } from '@lit/context';
 import { Task } from '@lit/task';
 import { msg } from '@lit/localize';
-import { Settings, apiRoot, tokenContext, settingsContext } from './context';
+import { apiRoot, tokenContext } from './context';
 import { SubscriptionStatus } from '../backend/subscription';
-import { setLocale, initializeLocale } from './localize';
+import { initializeLocale } from './localize';
 
 const query = new URLSearchParams(window.location.search);
 function getToken(): string | undefined {
@@ -22,34 +22,21 @@ function getToken(): string | undefined {
     return token;
   }
 }
-function getSettings(): Settings {
-  return {
-    language: query.get('lang') || 'en',
-    event: query.get('event') || undefined,
-  };
-}
-
 @customElement('mailer-control-panel')
 export class ControlPanel extends LitElement {
 
   @provide({context: tokenContext})
   token = getToken();
 
-  @provide({context: settingsContext})
-  settings: Settings = getSettings();
-
   async connectedCallback() {
     super.connectedCallback();
     await initializeLocale();
-    if (this.settings?.language) {
-      await setLocale(this.settings.language);
-    }
   }
 
   private fetchSubscriptionTask = new Task(this, {
     task: async ([token], {signal}) => {
       if (token === undefined) {
-        throw new Error(msg('missing authorization token'));
+        throw new Error(msg('Missing authorization token'));
       }
       const response = await fetch(`${apiRoot}/subscription`, {
         headers: {Authorization: `Bearer ${token}`},

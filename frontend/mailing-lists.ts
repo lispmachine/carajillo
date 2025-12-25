@@ -74,7 +74,7 @@ export class Subscription extends LitElement {
   private updateSubscriptionTask = new Task(this, {
     task: async ([data, token], {signal}) => {
       if (token === undefined) {
-        throw new Error(msg('missing authorization token'));
+        throw new Error(msg('Missing authorization token'));
       }
       if (this.data === undefined)
         return;

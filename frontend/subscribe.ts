@@ -1,13 +1,8 @@
 import { apiRoot } from "./context";
-import { setLocale } from "./localize";
+import { initializeLocale } from "./localize";
 import { msg, str } from '@lit/localize';
 
 let recaptchaSiteKey: string | null = null;
-
-async function initializeLocale() {
-  const locale = document.documentElement.lang || new URLSearchParams(window.location.search).get('lang') || 'en';
-  await setLocale(locale);
-}
 
 export async function main() {
   await domReady();

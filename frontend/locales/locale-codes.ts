@@ -1,4 +1,23 @@
-export const sourceLocale = 'en';
-export const targetLocales = ['pl'] as const;
-export type TargetLocale = typeof targetLocales[number];
+// Do not modify this file by hand!
+// Re-generate this file by running lit-localize.
 
+/**
+ * The locale code that templates in this source code are written in.
+ */
+export const sourceLocale = `en`;
+
+/**
+ * The other locale codes that this application is localized into. Sorted
+ * lexicographically.
+ */
+export const targetLocales = [
+  `pl`,
+] as const;
+
+/**
+ * All valid project locale codes. Sorted lexicographically.
+ */
+export const allLocales = [
+  `en`,
+  `pl`,
+] as const;
