@@ -1,4 +1,4 @@
-import { LoopsClient, APIError, RateLimitExceededError, ContactProperty } from "loops";
+import { LoopsClient, APIError, RateLimitExceededError, ContactProperty, Contact as LoopsContact } from "loops";
 
 const API_KEY = process.env.LOOPS_SO_SECRET;
 
@@ -24,18 +24,18 @@ export async function initialize() {
     if (!properties.some((prop) => prop.key === name)) {
       console.info(`creating ${name} property`);
       loops.createContactProperty(name, type);
+      return true;
     } else {
       console.log(`property ${name} already exists`);
+      return false;
     }
   };
 
   // Language preferred by contact; ISO 639 code.
-  upsertProperty('language', 'string');
+  await upsertProperty('language', 'string');
 
   // Custom double opt-in status - 'pending', 'accepted' or 'rejected'.
-  upsertProperty('xOptInStatus', 'string');
-
-  // @todo fill new property with optInStatus
+  await upsertProperty('xOptInStatus', 'string');
 
   console.info('loops initialized successfully');
 }
@@ -82,10 +82,27 @@ export async function findContact(email: string): Promise<Contact | null> {
   } else {
     const found = matchingContacts[0];
     console.log(`findContact: ${JSON.stringify(found)}`);
-    found.optInStatus = found.xOptInStatus as DoubleOptInStatus;
+    found.optInStatus = getDoubleOptInStatus(found);
     return found;
   }
 }
+
+function getDoubleOptInStatus(contact: LoopsContact): DoubleOptInStatus {
+  const builtInStatus = contact.optInStatus;
+  const customStatus = contact.xOptInStatus as DoubleOptInStatus;
+  const settledStates = new Set<DoubleOptInStatus>(['accepted', 'rejected']);
+  if (settledStates.has(customStatus)) {
+    return customStatus;
+  } else if (settledStates.has(builtInStatus)) {
+    // When custom status is not settled, use the built-in one.
+    // We cannot re-send confirmation e-mails, if newsletter used
+    // built-in loops double opt-in and contact accepted or rejected subscription.
+    return builtInStatus;
+  } else {
+    return customStatus;
+  }
+}
+
 
 /**
  * Create or update contact.
@@ -95,8 +112,8 @@ export async function findContact(email: string): Promise<Contact | null> {
  * @see https://loops.so/docs/api-reference/create-contact
  */
 export async function upsertContact(email: string, properties: ContactProperties, mailingListsIds: string[]): Promise<Contact> {
-  const matchingContacts = await loops.findContact({email});
-  if (matchingContacts.length === 0) {
+  const contact = await findContact(email);
+  if (contact === null) {
     const mailingLists = Object.fromEntries(mailingListsIds.map(listId => [listId, true]));
     const createResponse = await loops.createContact({
       email,
@@ -116,9 +133,8 @@ export async function upsertContact(email: string, properties: ContactProperties
       ...properties
     };
   } else {
-    const found = matchingContacts[0];
-    found.optInStatus = found.xOptInStatus as DoubleOptInStatus;
-    return found;
+    // @todo update properties if needed
+    return contact;
   }
 }
 
@@ -127,7 +143,7 @@ export async function subscribeContact(email: string, mailingLists: MailingLists
     email,
     properties: {
       subscribed: true,
-      xOptInStatus: 'accepted'
+      xOptInStatus: 'accepted',
     },
     mailingLists,
   });

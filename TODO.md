@@ -1,7 +1,7 @@
-* [ ] xOptInStatus
+* [x] xOptInStatus
 * [x] Use express? https://docs.netlify.com/build/frameworks/framework-setup-guides/express/
   - [x] remove backend/netlify
-  - [ ] remove subscription netlify function
+  - [x] remove subscription netlify function
 * [ ] json schema for request validation https://www.npmjs.com/package/express-openapi-validator
 * [-] use https://www.netlify.com/blog/introducing-netlify-functions-2-0/
 * [-] GET response caching (mailing lists etc.)
@@ -16,4 +16,6 @@
 * [ ] token refresh
   - [ ] due to server secret rotation
   - [ ] due to token expiration
-
+* [ ] rename backend subcsribe -> subscription
+* [ ] fronend/subscribe: filter out honeypot elements by display:none (getComputedStyle)
+* [ ] backend/honeypot: form action to catch spammers

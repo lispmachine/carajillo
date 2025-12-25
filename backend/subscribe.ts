@@ -2,7 +2,6 @@ import { HttpError } from './error';
 import { verifyCaptcha } from './recaptcha';
 import { findContact, upsertContact, sendConfirmationMail, subscribeContact, unsubscribeContact, getMailingLists } from './loops';
 import { createToken } from './jwt';
-import { log } from 'node:console';
 
 // @todo this env is netlify specific
 // https://docs.netlify.com/build/configure-builds/environment-variables/#deploy-urls-and-metadata
