@@ -3,7 +3,7 @@ import { Handler as NetlifyHandler, HandlerEvent as NetlifyEvent, HandlerContext
 import { HttpError } from './error';
 
 /**
- * Primary HTTP methods (verbs) for Json API defintions.
+ * Primary HTTP methods (verbs) for Json API definitions.
  * 
  * CRUD: Create (PUT), Read (GET), Update (PUT) and Delete.
  */
@@ -57,7 +57,7 @@ export function netlify(entrypoint: JsonApiEntrypoint): NetlifyHandler {
       throw new HttpError({
         statusCode: 405,
         reason: 'invalid-method',
-        message: `Only ${methods.join(', ')} reqeusts are allowed`
+        message: `Only ${methods.join(', ')} requests are allowed`
       });
     }
     const verb = event.httpMethod as CrudMethod;

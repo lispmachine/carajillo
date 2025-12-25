@@ -29,7 +29,7 @@ export async function initialize() {
     }
   };
 
-  // Language prefered by contact; ISO 639 code.
+  // Language preferred by contact; ISO 639 code.
   upsertProperty('language', 'string');
 
   // Custom double opt-in status - 'pending', 'accepted' or 'rejected'.
@@ -170,12 +170,12 @@ const getTransactionalEmails = unpaginate(loops.getTransactionalEmails.bind(loop
 
 
 /**
- * Find the transactional e-mail used to confirm subscripton.
+ * Find the transactional e-mail used to confirm subscription.
  * 
- * The double opt-in e-mail should have `xOptInUrl` in it's data variables
+ * The double opt-in e-mail should have `xOptInUrl` in its data variables
  * and language code in its name e.g. `#PL` if email is in polish.
  * 
- * @param language  Prefered language
+ * @param language  Preferred language
  * @returns transactional email object
  */
 async function findDoubleOptInEmail(language?: string) {

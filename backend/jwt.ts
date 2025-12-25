@@ -5,7 +5,7 @@ import { StringValue as TimeDeltaString } from 'ms';
 import { Request } from 'express';
 
 const SECRET = process.env.JWT_SECRET;
-// @todo refresh mechanizm is needed to really handle expiration
+// @todo refresh mechanism is needed to really handle expiration
 // @see https://www.npmjs.com/package/ms
 const TOKEN_EXPIRATION : TimeDeltaString = process.env.JWT_EXPIRATION as TimeDeltaString || '1 year';
 const ALGORITHM : Algorithm = 'HS512'; // HMAC with SHA-512 hash
@@ -94,7 +94,7 @@ export function validateToken(jwt: string, issuer: string): string
   }
 
   if (payload.sub === undefined) {
-    throw new HttpError({statusCode: 401, message: 'Unathorized', details: 'Missing token subject'})
+    throw new HttpError({statusCode: 401, message: 'Unauthorized', details: 'Missing token subject'})
   }
 
   return payload.sub;

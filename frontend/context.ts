@@ -14,7 +14,7 @@ export interface Settings {
   /**
    * Event - what triggered the user subscription.
    * 
-   * Custom string passed from the subscripton form
+   * Custom string passed from the subscription form
    */
   event?: string;
 }

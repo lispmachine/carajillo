@@ -21,7 +21,7 @@ export interface SubscribeRequest {
  *
  * At this stage email is not confirmed to be valid.
  * It sends confirmation e-mail (if it does not exist already)
- * and protects the entry with CAPTCHA mechanizm.
+ * and protects the entry with CAPTCHA mechanism.
  */
 export async function subscribe(request: SubscribeRequest) {
   console.info(`subscribe: ${JSON.stringify(request)}`);
@@ -67,7 +67,7 @@ export async function subscribe(request: SubscribeRequest) {
     if (mailing_lists.every((requestedMailingList) => contact.mailingLists[requestedMailingList]))
     {
       console.info('Already subscribed for all requested mailing lists - do not send e-mail');
-      return {success: true, contact};
+      return {success: true, email};
     }
   }
 

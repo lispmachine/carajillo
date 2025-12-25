@@ -88,10 +88,10 @@ async function verifyRecaptchaToken(action: string, token: string): Promise<bool
   }
 
   if(captcha.action !== action) {
-    console.error(`CAPTION action does not match: expected=${action} actual=${captcha.action}`);
+    console.error(`CAPTCHA action does not match: expected=${action} actual=${captcha.action}`);
     throw new HttpError({
       statusCode: 400,
-      message: 'Bad reqeust',
+      message: 'Bad request',
       reason: 'captcha-action-mismatch',
       details: "CAPTCHA error: action-mismatch"
     });
@@ -110,7 +110,7 @@ async function verifyRecaptchaToken(action: string, token: string): Promise<bool
 /**
  * Calls reCAPTCHA REST API for token site verification.
  * @param token  reCAPTCHA token
- * @return reCAPTCHA REST API resoponse
+ * @return reCAPTCHA REST API response
  */
 export async function sendVerificationRequest(token: string): Promise<RecaptchaResponse> {
   if (!SECRET) {
@@ -141,7 +141,7 @@ export async function sendVerificationRequest(token: string): Promise<RecaptchaR
     throw new HttpError({
       statusCode: 500,
       message: 'Internal server error',
-      details: "reCAPTCHA validatation failed",
+      details: "reCAPTCHA validation failed",
     });
   }
 }

@@ -106,15 +106,15 @@ Sample subscription form will be available at: `http://localhost:8888/`
 ## Usage
 
 ### Double opt-in on loops
-As of right now (December 2025) the built-in loops mechanizm for e-mail confirmation ([Double opt-in](https://loops.so/docs/contacts/double-opt-in))
+As of right now (December 2025), the built-in loops mechanism for e-mail confirmation ([Double opt-in](https://loops.so/docs/contacts/double-opt-in))
 is only supported when subscribing through forms.  API can read the `optInStatus` but cannot update it.
-To circumvent this issue you need to keep the loops double opt-in mechanizm disabled.
+To circumvent this issue you need to keep the loops double opt-in mechanism disabled.
 Go to [sending options](https://app.loops.so/settings?page=sending) and make sure the `New contacts confirm subscription by email` option is disabled.
 
 Check https://loops.so/docs/api-reference/changelog
 
-Instead the mailer will use it's own mechanizm with custom `xOptInStatus` property.
-It will search for transactional e-mail with `{xOptInUrl}` data variable.
+Instead the mailer will use its own mechanism with custom `xOptInStatus` property.
+It will search for transactional e-mail with `xOptInUrl` data variable.
 You can translate confirmation email into multiple languages.
 Mailer will try to find right translation by email name.
 
@@ -125,18 +125,20 @@ TODO: describe including subscription form on site
 
 ### Endpoints
 
-#### GET /api/recaptcha
+#### GET /api/captcha
 
-Retrieve reCAPTCHA site key
+Retrieve CAPTCHA configuration including site key.
+
 **Response:**
 ```json
 {
-  success: true
-  recaptcha_site_key: "reCAPTCHA-site-key-to-load-google-cloud-API"
+  "success": true,
+  "provider": "recaptcha",
+  "site_key": "reCAPTCHA-site-key-to-load-google-cloud-API"
 }
 ```
 
-#### GET /api/subscribe
+#### GET /api/lists
 
 Retrieves the list of publicly available mailing lists.
 
@@ -152,9 +154,30 @@ Retrieves the list of publicly available mailing lists.
 ]
 ```
 
+#### GET /api/subscribe
+
+Retrieves the subscription status for the authenticated user. Requires JWT token in `Authorization: Bearer <token>` header.
+
+**Response:**
+```json
+{
+  "success": true,
+  "email": "user@example.com",
+  "subscribed": true,
+  "mailingLists": [
+    {
+      "id": "mailing-list-id",
+      "name": "Newsletter",
+      "description": "Mailing list description",
+      "subscribed": true
+    }
+  ]
+}
+```
+
 #### POST /api/subscribe
 
-Subscribes an email address to the newsletter with double opt-in.
+Subscribes an email address to the newsletter with double opt-in. Sends a confirmation email to the user.
 
 **Request Body:**
 ```json
@@ -177,13 +200,7 @@ Subscribes an email address to the newsletter with double opt-in.
 ```json
 {
   "success": true,
-  "contact": {
-    "id": "contact-id",
-    "email": "user@example.com",
-    "subscribed": true,
-    "mailingLists": {},
-    "optInStatus": "accepted"
-  }
+  "email": "user@example.com",
 }
 ```
 
@@ -192,6 +209,36 @@ Subscribes an email address to the newsletter with double opt-in.
 {
   "success": false,
   "error": "Error message description"
+}
+```
+
+#### PUT /api/subscribe
+
+Updates subscription status for the authenticated user. Requires JWT token in `Authorization: Bearer <token>` header.
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "subscribe": true,
+  "mailingLists": {
+    "mailing-list-id-1": true,
+    "mailing-list-id-2": false
+  }
+}
+```
+
+**Request Fields:**
+- `email` (required): Email address (must match JWT token subject)
+- `subscribe` (required): Boolean to subscribe (true) or unsubscribe (false)
+- `mailingLists` (required): Object mapping mailing list IDs to subscription status
+
+**Success Response:**
+```json
+{
+  "success": true,
+  "email": "user@example.com",
+  "subscribed": true
 }
 ```
 
@@ -225,7 +272,7 @@ sequenceDiagram
   UserAgent ->> reCAPTCHAv3: get reCAPTCHA script
   note over User,UserAgent: start user/bot verification in background
 
-  UserAgent -->>+ User: Show subscripton form
+  UserAgent -->>+ User: Show subscription form
 
   User ->>- UserAgent: Submit subscription form
   activate UserAgent
@@ -238,7 +285,7 @@ sequenceDiagram
     mailer ->>+ reCAPTCHAv3: Verify token
     reCAPTCHAv3 -->>- mailer: CAPTCHA score
     rect rgb(100, 0, 0)
-      break when score below threashold
+      break when score below threshold
         mailer -->> UserAgent: I smell 🤖
       end
     end
@@ -288,7 +335,7 @@ sequenceDiagram
 
 ```json
 {
-  "sub": "subcriber@example.com",
+  "sub": "subscriber@example.com",
   "iss": "mailer.domain.org",
   "exp": Date.now()/1000 + 600 
 }
