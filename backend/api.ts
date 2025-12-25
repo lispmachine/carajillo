@@ -1,10 +1,12 @@
 
 import express, { Router } from "express";
 import { middleware as errorMiddleware, HttpError } from "./error";
+import { middleware as openApiValidator } from "express-openapi-validator";
+import path from "path";
 
 import { authenticate } from "./jwt";
 import { subscribe, getSubscription, updateSubscription } from "./subscribe"
-import { SubscribeRequest, UpdateSubscriptionRequest } from "./subscribe";
+import type { SubscribeRequest, UpdateSubscriptionRequest } from "./subscribe";
 import { getMailingLists } from "./loops";
 import { configuration as captchaConfiguration } from "./recaptcha";
 
@@ -25,6 +27,13 @@ app.set('trust proxy', true);
 
 // Parse strings as simple key-value pairs.
 app.set('query parser', 'simple');
+
+const apiSpecValidator = openApiValidator({
+  apiSpec: path.join(__dirname, "openapi.yaml"),
+  validateRequests: true,
+  validateResponses: false, // Set to true in development for response validation
+  validateSecurity: false, // We handle JWT validation manually in authenticate()
+});
 
 const router = Router();
 
@@ -62,15 +71,19 @@ router.get("/lists", async (req, res) => {
   const response = await getMailingLists();
   res.json(response);
 });
-router.get("/test", async (req, res) => {
-  res.json({
-    hostname: req.hostname,
-    url: req.originalUrl,
-    ip: req.ip,
-    ips: req.ips,
+
+if (process.env.NODE_ENV === "development") {
+  router.get("/test", apiSpecValidator, async (req: express.Request, res: express.Response) => {
+    res.json({
+      hostname: req.hostname,
+      url: req.originalUrl,
+      ip: req.ip,
+      ips: req.ips,
+    });
   });
-});
+}
 
 // @todo set headers Cache-Control...
 // @todo use cors https://expressjs.com/en/resources/middleware/cors.html
-app.use("/api/", express.json(), router, errorMiddleware);
+
+app.use("/api/", express.json(), apiSpecValidator, router, errorMiddleware);

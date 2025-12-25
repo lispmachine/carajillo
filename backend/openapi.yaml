@@ -1,0 +1,417 @@
+openapi: 3.0.3
+info:
+  title: Mailer API
+  description: Newsletter subscription management API for loops.so
+  version: 1.0.0
+servers:
+  - url: /api
+    description: API base path
+
+paths:
+  /captcha:
+    get:
+      summary: Get CAPTCHA configuration
+      description: Retrieve CAPTCHA configuration including site key and provider
+      operationId: getCaptcha
+      tags:
+        - CAPTCHA
+      responses:
+        '200':
+          description: CAPTCHA configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptchaConfiguration'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /lists:
+    get:
+      summary: Get mailing lists
+      description: Retrieves the list of publicly available mailing lists
+      operationId: getMailingLists
+      tags:
+        - Mailing Lists
+      responses:
+        '200':
+          description: List of publicly available mailing lists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MailingList'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /subscribe:
+    get:
+      summary: Get subscription status
+      description: Retrieves the subscription status for the authenticated user
+      operationId: getSubscription
+      tags:
+        - Subscription
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Subscription status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Subscribe to newsletter
+      description: Subscribes an email address to the newsletter with double opt-in. Sends a confirmation email to the user.
+      operationId: subscribe
+      tags:
+        - Subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscribeRequest'
+      responses:
+        '200':
+          description: Subscription request successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscribeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update subscription
+      description: Updates subscription status for the authenticated user
+      operationId: updateSubscription
+      tags:
+        - Subscription
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubscriptionRequest'
+      responses:
+        '200':
+          description: Subscription updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSubscriptionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /test:
+    get:
+      summary: Test endpoint
+      description: Returns test information about the request
+      operationId: test
+      tags:
+        - Test
+      responses:
+        '200':
+          description: Test information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+  schemas:
+    CaptchaConfiguration:
+      type: object
+      required:
+        - success
+        - provider
+        - site_key
+      properties:
+        success:
+          type: boolean
+          example: true
+        provider:
+          type: string
+          enum: [recaptcha, hcaptcha, none]
+          example: recaptcha
+        site_key:
+          type: string
+          description: CAPTCHA site key for client-side integration
+          example: "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+
+    MailingList:
+      type: object
+      required:
+        - id
+        - name
+        - isPublic
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the mailing list
+          example: "clx1234567890"
+        name:
+          type: string
+          description: Display name of the mailing list
+          example: "Newsletter"
+        description:
+          type: string
+          nullable: true
+          description: Description of the mailing list
+          example: "Weekly newsletter with updates"
+        isPublic:
+          type: boolean
+          description: Whether the mailing list is publicly available
+          example: true
+
+    SubscribeRequest:
+      type: object
+      required:
+        - email
+        - captcha_token
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address to subscribe
+          example: "user@example.com"
+        captcha_token:
+          type: string
+          description: CAPTCHA response token from client
+          example: "03AGdBq24..."
+        mailing_lists:
+          type: array
+          items:
+            type: string
+          description: Array of mailing list IDs to subscribe to (optional, defaults to empty array)
+          default: []
+          example: ["clx1234567890", "clx0987654321"]
+        language:
+          type: string
+          description: Language code for email templates (ISO 639-1)
+          example: "en"
+          minLength: 2
+          maxLength: 2
+
+    SubscribeResponse:
+      type: object
+      required:
+        - success
+        - email
+      properties:
+        success:
+          type: boolean
+          example: true
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+
+    SubscriptionStatus:
+      type: object
+      required:
+        - success
+        - email
+        - subscribed
+        - mailingLists
+      properties:
+        success:
+          type: boolean
+          example: true
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        subscribed:
+          type: boolean
+          description: Overall subscription status
+          example: true
+        mailingLists:
+          type: array
+          items:
+            $ref: '#/components/schemas/MailingListWithSubscription'
+          description: List of mailing lists with subscription status
+
+    MailingListWithSubscription:
+      allOf:
+        - $ref: '#/components/schemas/MailingList'
+        - type: object
+          required:
+            - subscribed
+          properties:
+            subscribed:
+              type: boolean
+              description: Whether the user is subscribed to this mailing list
+              example: true
+
+    UpdateSubscriptionRequest:
+      type: object
+      required:
+        - email
+        - subscribe
+        - mailingLists
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address (must match JWT token subject)
+          example: "user@example.com"
+        subscribe:
+          type: boolean
+          description: Subscribe (true) or unsubscribe (false)
+          example: true
+        mailingLists:
+          type: object
+          additionalProperties:
+            type: boolean
+          description: Object mapping mailing list IDs to subscription status
+          example:
+            "clx1234567890": true
+            "clx0987654321": false
+
+    UpdateSubscriptionResponse:
+      type: object
+      required:
+        - success
+        - email
+        - subscribed
+      properties:
+        success:
+          type: boolean
+          example: true
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        subscribed:
+          type: boolean
+          example: true
+
+    TestResponse:
+      type: object
+      properties:
+        hostname:
+          type: string
+          example: "example.com"
+        url:
+          type: string
+          example: "/api/test"
+        ip:
+          type: string
+          example: "192.168.1.1"
+        ips:
+          type: array
+          items:
+            type: string
+          example: ["192.168.1.1"]
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+          example: "Error message description"
+        reason:
+          type: string
+          description: Error reason code for API use
+          example: "invalid-method"
+
+  responses:
+    BadRequest:
+      description: Invalid request format or missing required fields
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Missing email"
+            reason: "validation-error"
+
+    Unauthorized:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Unauthorized"
+            reason: "invalid-token"
+
+    Forbidden:
+      description: Access forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Forbidden"
+            reason: "email-mismatch"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Contact not found"
+
+    TooManyRequests:
+      description: Too many requests or CAPTCHA validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Try again later"
+            reason: "captcha-failed"
+
+    InternalServerError:
+      description: Server configuration or processing error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Internal Server error"
+
