@@ -1,0 +1,32 @@
+#!/bin/bash
+IFS=$'\t\n'
+set -euo pipefail
+cat <<EOF
+# Sample mailer configuration.
+# See README.md for more details.
+
+# Company information for email templates
+COMPANY_NAME=Company Name
+COMPANY_ADDRESS=Company Address
+COMPANY_LOGO=https://example.com/logo.png
+
+# Domains where submission forms may be created (default: all submissions are accepted)
+CORS_ORIGIN=example.com
+
+# Secret key for JWT token signing
+JWT_SECRET=$(dd count=1 ibs=32 if=/dev/random status=none | base64)
+
+# Loops.so API key
+# https://app.loops.so/settings?page=api
+LOOPS_SO_SECRET=$(dd count=1 ibs=32 if=/dev/random status=none | base64)
+
+# CAPTCHA provider (default: `recaptcha`, options: `recaptcha`, `none`)
+CAPTCHA_PROVIDER=recaptcha
+# CAPTCHA score threshold (default: `0.5`)
+CAPTCHA_THRESHOLD=0.5
+
+# reCAPTCHA site key, secret key
+# https://console.cloud.google.com/security/recaptcha/
+RECAPTCHA_SITE_KEY=your-site-key
+RECAPTCHA_SECRET=your-secret-key-here
+EOF

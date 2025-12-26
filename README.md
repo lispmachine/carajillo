@@ -27,58 +27,27 @@ Set your reCAPTCHA secret key as an environment variable in Netlify:
 1. Go to your site's settings (https://app.netlify.com/ » choose project » project configuration)
 2. Navigate to "Environment variables"
 3. Add variables:
+ - `COMPANY_NAME` - Company name for email templates (optional)
+ - `COMPANY_ADDRESS` - Company address for email templates (optional)
+ - `COMPANY_LOGO` - URL of company logo image (optional)
+ - `CORS_ORIGIN` - Domains where submission forms may be created (default: all submissions are accepted)
  - `JWT_SECRET` - Secret key for JWT token signing
  - `LOOPS_SO_SECRET` - Loops.so API key
  - `CAPTCHA_PROVIDER` - CAPTCHA provider (default: `recaptcha`, options: `recaptcha`, `none`)
  - `CAPTCHA_THRESHOLD` - CAPTCHA score threshold (default: `0.5`)
  - `RECAPTCHA_SITE_KEY` - reCAPTCHA site key (public)
  - `RECAPTCHA_SECRET` - reCAPTCHA secret key
- - `COMPANY_NAME` - Company name for email templates (optional)
- - `COMPANY_ADDRESS` - Company address for email templates (optional)
- - `COMPANY_LOGO` - URL of company logo impage (optional)
- - `CORS_ORIGIN` - Domains where submission forms may be created (default: all submissions are accepted)
-
-**Via Netlify CLI:**
-```bash
-npx netlify link
-npx netlify env:set --context production deploy-preview --secret JWT_SECRET $(dd count=1 ibs=32 if=/dev/random status=none | base64)
-npx netlify env:set CAPTCHA_PROVIDER recaptcha
-# https://console.cloud.google.com/security/recaptcha/
-npx netlify env:set RECAPTCHA_SITE_KEY "your-site-key"
-npx netlify env:set --context production deploy-preview --secret RECAPTCHA_SECRET "your-secret-key-here"
-# https://app.loops.so/settings?page=api
-npx netlify env:set --context production deploy-preview --secret LOOPS_SO_SECRET "your-secret-key-here"
-```
 
 **For Local Development:**
-Create a `.env` file in the root directory:
-```
-JWT_SECRET=long-generated-password-for-token-signing
-
-# https://app.loops.so/settings?page=api
-LOOPS_SO_SECRET=your-secret-key-here
-
-CAPTCHA_PROVIDER=recaptcha|hcaptcha|none
-CAPTCHA_THRESHOLD=0.5
-# https://console.cloud.google.com/security/recaptcha/
-RECAPTCHA_SITE_KEY=public-site-key
-RECAPTCHA_SECRET=your-secret-key-here
-
-# Optional: Company information for email templates
-COMPANY_NAME=Your Company Name
-COMPANY_ADDRESS=Your Company Address
-COMPANY_LOGO=https://your-company.com/logo.png
-
-CORS_ORIGIN=your-company.com
+Create a `.env` file(s) in the root directory:
+```bash
+./scripts/generate-env.bash >.env.development.local
+./scripts/generate-env.bash >.env.production.local
 ```
 
 **Via Netlify CLI when .env file is created** 
 ```bash
-npx netlify link
-npx netlify env:import .env
-npx netlify env:set JWT_SECRET --secret
-npx netlify env:set RECAPTCHA_SECRET --secret
-npx netlify env:set LOOPS_SO_SECRET --secret
+./script/netlify-import-env.bash .env.production.local
 ```
 
 ### 3. Build

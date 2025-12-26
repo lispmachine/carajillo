@@ -2,8 +2,8 @@ import { LoopsClient, ContactProperty, Contact as LoopsContact } from "loops";
 
 const API_KEY = process.env.LOOPS_SO_SECRET;
 
-const companyName = process.env.COMPANY_NAME || 'Company name';
-const companyAddress = process.env.COMPANY_ADDRESS || 'Address';
+const companyName = process.env.COMPANY_NAME;
+const companyAddress = process.env.COMPANY_ADDRESS;
 const companyLogo = process.env.COMPANY_LOGO;
 
 if (API_KEY === undefined)
@@ -23,7 +23,7 @@ export async function initialize() {
   const upsertProperty = async (name: string, type: "string" | "number" | "boolean" | "date") => {
     if (!properties.some((prop) => prop.key === name)) {
       console.info(`creating ${name} property`);
-      loops.createContactProperty(name, type);
+      await loops.createContactProperty(name, type);
       return true;
     } else {
       console.log(`property ${name} already exists`);
@@ -36,6 +36,8 @@ export async function initialize() {
 
   // Custom double opt-in status - 'pending', 'accepted' or 'rejected'.
   await upsertProperty('xOptInStatus', 'string');
+
+  // @todo verify double opt-in email exists and has all required data variables
 
   console.info('loops initialized successfully');
 }
@@ -164,13 +166,13 @@ export async function sendConfirmationMail(email: string, confirmUrl: string, la
   const confirmationEmail = await findDoubleOptInEmail(language);
   console.log(`Sending ${confirmationEmail.name} to ${email} with ${confirmUrl}`);
   console.log(`Data variables: ${JSON.stringify(confirmationEmail.dataVariables)}`);
-  // @todo other variables? logo?
-  loops.sendTransactionalEmail({
+  await loops.sendTransactionalEmail({
     email: email,
     transactionalId: confirmationEmail.id,
     dataVariables: {
-      companyName,
-      companyAddress,
+      companyName: companyName || '',
+      companyAddress: companyAddress || '',
+      companyLogo: companyLogo || '',
       xOptInUrl: confirmUrl,
     }
   });
