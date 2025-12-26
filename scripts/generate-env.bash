@@ -15,6 +15,10 @@ CORS_ORIGIN=example.com other.example.com
 
 # Secret key for JWT token signing
 JWT_SECRET=$(dd count=1 ibs=32 if=/dev/random status=none | base64)
+# How long token in e-mail confirmation link is valid (default: 1 year)
+# After this time another confirmation e-mail will be sent when needed
+# See: https://github.com/vercel/ms#readme for time delta syntax
+JWT_EXPIRATION=1 year
 
 # Loops.so API key
 # https://app.loops.so/settings?page=api

@@ -32,6 +32,7 @@ Set your reCAPTCHA secret key as an environment variable in Netlify:
  - `COMPANY_LOGO` - URL of company logo image (optional)
  - `CORS_ORIGIN` - Domains where submission forms may be created (default: all submissions are accepted)
  - `JWT_SECRET` - Secret key for JWT token signing
+ - `JWT_EXPIRATION` - How long token in e-mail confirmation link is valid (default: 1 year)
  - `LOOPS_SO_SECRET` - Loops.so API key
  - `CAPTCHA_PROVIDER` - CAPTCHA provider (default: `recaptcha`, options: `recaptcha`, `none`)
  - `CAPTCHA_THRESHOLD` - CAPTCHA score threshold (default: `0.5`)
