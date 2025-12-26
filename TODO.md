@@ -20,3 +20,4 @@
 * [ ] frontend/subscribe: filter out honeypot elements by display:none (getComputedStyle)
 * [x] backend/honeypot: form action to catch spammers
 * [ ] company logo
+* [x] referer

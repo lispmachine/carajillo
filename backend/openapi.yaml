@@ -230,6 +230,11 @@ components:
           example: "en"
           minLength: 2
           maxLength: 2
+        referer:
+          type: string
+          format: uri
+          description: The URL of the page where the subscription form is located
+          example: "https://example.com/newsletter"
       additionalProperties:
         type: string
 

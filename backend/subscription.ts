@@ -7,13 +7,13 @@ import { createToken } from './jwt';
 // https://docs.netlify.com/build/configure-builds/environment-variables/#deploy-urls-and-metadata
 const rootUrl = process.env.URL;
 
-export interface SubscribeRequest {
+export type SubscribeRequest = {
   email : string;
   language?: string;
   captcha_token: string;
   mailing_lists: string[];
-  // @todo extra properties
-};
+  referer?: string;
+} & Record<string, string>;
 
 /**
  * First step of e-mail subscrition.
@@ -27,21 +27,7 @@ export async function subscribe(request: SubscribeRequest) {
   if (rootUrl === undefined) {
     throw new HttpError({statusCode: 500, message: "Internal Server error", details: 'missing URL env'});
   }
-  if (typeof request.email !== "string")
-    throw new HttpError({statusCode: 400, message: "Missing email"});
   /// @todo make captcha_token optional
-  if (typeof request.captcha_token !== "string")
-    throw new HttpError({statusCode: 400, message: "Missing CAPTCHA token"});
-
-  if (request.mailing_lists === undefined) {
-    request.mailing_lists = [];
-  }
-  if (!Array.isArray(request.mailing_lists)) {
-    throw new HttpError({statusCode: 400, message: "Malformed request"});
-  }
-  if (!request.mailing_lists.every((id) => typeof id === 'string')) {
-    throw new HttpError({statusCode: 400, message: "Malformed request"});
-  }
 
   const {email, mailing_lists, captcha_token, ...properties} = request;
 
