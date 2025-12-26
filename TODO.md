@@ -21,3 +21,4 @@
 * [x] backend/honeypot: form action to catch spammers
 * [ ] company logo
 * [x] referer
+* [ ] autosubscribe using visibilityState/visibilitychange event

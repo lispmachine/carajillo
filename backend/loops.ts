@@ -1,10 +1,10 @@
-import { LoopsClient, APIError, RateLimitExceededError, ContactProperty, Contact as LoopsContact } from "loops";
+import { LoopsClient, ContactProperty, Contact as LoopsContact } from "loops";
 
 const API_KEY = process.env.LOOPS_SO_SECRET;
 
-/// @todo
 const companyName = process.env.COMPANY_NAME || 'Company name';
 const companyAddress = process.env.COMPANY_ADDRESS || 'Address';
+const companyLogo = process.env.COMPANY_LOGO;
 
 if (API_KEY === undefined)
   throw new Error('Configuration error');
