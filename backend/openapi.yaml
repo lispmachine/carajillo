@@ -8,6 +8,23 @@ servers:
     description: API base path
 
 paths:
+  /company:
+    get:
+      summary: Get company information
+      description: Retrieves the company information
+      operationId: getCompany
+      tags:
+        - Company
+      responses:
+        '200':
+          description: Company information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /captcha:
     get:
       summary: Get CAPTCHA configuration
@@ -178,6 +195,27 @@ components:
           description: CAPTCHA site key for client-side integration
           example: "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
 
+    Company:
+      type: object
+      required:
+        - name
+        - address
+      properties:
+        name:
+          type: string
+          description: Name of the company
+          example: "Company Name"
+        address:
+          type: string
+          description: Address of the company
+          example: "123 Main St, Anytown, USA"
+        logo:
+          type: string
+          format: uri
+          description: URL of the company logo
+          example: "https://example.com/logo.png"
+      additionalProperties: false
+
     MailingList:
       type: object
       required:
@@ -251,6 +289,10 @@ components:
           type: string
           format: email
           example: "user@example.com"
+        double_opt_in:
+          type: boolean
+          description: Whether the double opt-in is enabled
+          example: true
 
     SubscriptionStatus:
       type: object

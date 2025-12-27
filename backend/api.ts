@@ -47,6 +47,14 @@ const apiSpecValidator = openApiValidator({
 
 const router = Router();
 
+router.get("/company", async (req, res) => {
+  res.json({
+    name: process.env.COMPANY_NAME || '',
+    address: process.env.COMPANY_ADDRESS || '',
+    logo: process.env.COMPANY_LOGO,
+  });
+});
+
 router.post("/subscription", async (req, res) => {
   const response = await subscribe(req.body as SubscribeRequest);
   res.json(response);

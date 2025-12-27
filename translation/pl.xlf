@@ -8,7 +8,7 @@
 </trans-unit>
 <trans-unit id="s0ade52b437688faf">
   <source>Missing authorization token</source>
-  <target>Brakujący token autoryzacji</target>
+  <target>Brakujący token uwierzytelniania</target>
 </trans-unit>
 <trans-unit id="sad65264d44677cf0">
   <source>Something went wrong.</source>
@@ -26,9 +26,13 @@
   <source>⏳ Too many signups, please try again in a little while.</source>
   <target>⏳ Zbyt wiele rejestracji, spróbuj ponownie za chwilę.</target>
 </trans-unit>
-<trans-unit id="se2773b931369de6e">
-  <source>📨 Subscription successful. Check your email for confirmation.</source>
-  <target>📨 Subskrypcja zakończona sukcesem. Sprawdź swoją skrzynkę e-mail w celu potwierdzenia.</target>
+<trans-unit id="s0b1690024b09098d">
+  <source>📨 Almost there! We sent you a confirmation email. Check spam folder if you don't see it.</source>
+  <target>📨 Prawie gotowe! Wysłaliśmy Ci e-mail w celu potwierdzenia. Sprawdź folder spam, jeśli go tam nie ma.</target>
+</trans-unit>
+<trans-unit id="s06de85f5e3de8fb2">
+  <source>✉️ Subscription successful.</source>
+  <target>✉️ Udało się!</target>
 </trans-unit>
 <trans-unit id="s21a32ae6ce22bc9b">
   <source>❌ Subscription failed: <x id="0" equiv-text="${result.error}"/></source>

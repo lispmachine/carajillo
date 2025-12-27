@@ -52,7 +52,7 @@ export async function subscribe(request: SubscribeRequest) {
     if (mailing_lists.every((requestedMailingList) => contact.mailingLists[requestedMailingList]))
     {
       console.info('Already subscribed for all requested mailing lists - do not send e-mail');
-      return {success: true, email};
+      return {success: true, double_opt_in: true, email};
     }
   }
 
@@ -63,7 +63,7 @@ export async function subscribe(request: SubscribeRequest) {
   }
   await sendConfirmationMail(contact.email, `${rootUrl}/control-panel?${params}`, properties.language);
 
-  return {success: true, email};
+  return {success: true, double_opt_in: true, email};
 }
 
 
