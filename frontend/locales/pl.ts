@@ -13,6 +13,7 @@
 's1355969faebef442': `⏳ Zbyt wiele rejestracji, spróbuj ponownie za chwilę.`,
 's21a32ae6ce22bc9b': str`❌ Subskrypcja nie powiodła się: ${0}`,
 's55b02a24911edb75': `Nie można pobrać klucza witryny reCAPTCHA`,
+'s817ea8fb80b785bd': `Wybierz co Cię interesuje:`,
 'sa92333d7aaa088a8': `Klucz witryny reCAPTCHA nie został załadowany`,
 'sad65264d44677cf0': `Coś poszło nie tak.`,
 'sc9af3682b0897c67': `Zapisz się na newsletter`,

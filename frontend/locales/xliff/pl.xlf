@@ -34,6 +34,10 @@
   <source>❌ Subscription failed: <x id="0" equiv-text="${result.error}"/></source>
   <target>❌ Subskrypcja nie powiodła się: <x id="0" equiv-text="${result.error}"/></target>
 </trans-unit>
+<trans-unit id="s817ea8fb80b785bd">
+  <source>Choose what you are interested in:</source>
+  <target>Wybierz co Cię interesuje:</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

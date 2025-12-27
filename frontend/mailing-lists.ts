@@ -33,7 +33,7 @@ export class ListSubscription extends LitElement {
         <md-icon slot="start">label</md-icon>
         <div slot="headline"><label for=${this.mailingListId}>${this.name}</label></div>
         <div slot="supporting-text"><label for=${this.mailingListId}>${this.description}</label></div>
-        <div slot="trailing-supporting-text">
+        <div slot="end">
           <md-switch icons id=${this.mailingListId} ?selected=${this.subscribed} ?disabled=${this.disabled} @change=${this.onChange}></md-switch>
         </div>
       </md-list-item>

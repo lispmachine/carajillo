@@ -48,6 +48,10 @@ export class ControlPanel extends LitElement {
     await initializeLocale();
   }
 
+  protected get useMailingLists(): boolean {
+    return this.subscription?.mailingLists !== undefined && this.subscription.mailingLists.length > 0;
+  }
+
   // @todo update name?
 
   // @todo autosubscribe
@@ -70,16 +74,24 @@ export class ControlPanel extends LitElement {
       error: (error) => html`<md-suggestion-chip><md-icon slot="icon">error</md-icon>${String(error)}</md-suggestion-chip>`
     })
 
-    // @todo show e-mail, company name
-    // @todo use fab https://material-web.dev/components/fab/ for main subscription
+      // <md-filled-button>${msg('Subscribe')}<md-icon slot="icon">mail</md-icon></md-filled-button>
+      // <md-outlined-button>${msg('Unsubscribe')}<md-icon slot="icon">unsubscribe</md-icon></md-outlined-button>
+
+    // @todo show e-mail, company name, company logo
     return html`
       <md-list>
         <md-list-item type="button">
+          <md-icon slot="start">mail</md-icon>
           <div slot="headline"><label for="subscribe">${msg('Subscribe for newsletter')}</label></div>
-          <div slot="trailing-supporting-text">
+          <div slot="end">
             <md-switch icons id="subscribe" ?selected=${subscription.subscribed} @change=${this.onChange}></md-switch>
           </div>
         </md-list-item>
+        ${this.useMailingLists ? html`
+          <md-divider></md-divider>
+          <md-list-item>${msg('Choose what you are interested in:')}</md-list-item>
+          <md-divider></md-divider>
+          ` : html``}
         ${repeat(
           subscription.mailingLists,
           (list) => list.id,

@@ -236,7 +236,12 @@ Principles:
 2. Should we relax the requirement for e-mail confirmation when CAPTCHA score is high?
 3. The agent should be stateless. The user flow should be authorized by time limited [JWT](https://datatracker.ietf.org/doc/html/rfc7519)
 
+### Use cases
+
 ```mermaid
+---
+title: Subscription sequence diagram 
+---
 sequenceDiagram
   actor User
   participant UserAgent
@@ -256,7 +261,7 @@ sequenceDiagram
   activate UserAgent
   UserAgent ->>+ reCAPTCHAv3: get reCAPTCHA token
   reCAPTCHAv3 -->>- UserAgent: reCAPTCHA token
-  UserAgent ->> mailer: Form data + reCAPTCHA token
+  UserAgent ->> mailer: Form data + reCAPTCHA token + initial mailing list set
   deactivate UserAgent
 
     activate mailer
@@ -309,14 +314,23 @@ sequenceDiagram
   end
 ```
 
-### sample JWT
+```mermaid
+---
+title: Control panel state diagram 
+---
+stateDiagram-v2
+  classdef subscriptionState font-weight: bold, fill:#004
+  class Pending, Accepted, Rejected  subscriptionState
+  Fetching: Fetching subscription data
 
-```json
-{
-  "sub": "subscriber@example.com",
-  "iss": "mailer.domain.org",
-  "exp": Date.now()/1000 + 600 
-}
+  [*] --> Fetching
+  Fetching --> Pending: First click
+  Pending --> Subscribing: Window visible or button clicked
+  Subscribing --> Accepted: Confetti
+  Fetching --> Accepted: Previously accepted
+  Fetching --> Rejected: Previously rejected
+  Accepted --> Rejected: Unsubscribe
+  Rejected --> Accepted: Resubscribe
 ```
 
 ## Project Structure
