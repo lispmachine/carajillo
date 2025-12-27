@@ -315,23 +315,35 @@ sequenceDiagram
   end
 ```
 
+---
+
 ```mermaid
 ---
 title: Control panel state diagram 
 ---
 stateDiagram-v2
-  classdef subscriptionState font-weight: bold, fill:#004
-  class Pending, Accepted, Rejected  subscriptionState
+  classdef stable font-weight: bold
+  classdef temporary  font-style:italic
+  classdef good fill:#030
+  classdef bad fill:#300
+  classdef ugly fill:#330
+  class Pending, Accepted, Rejected  stable
+  class Subscribing, Error temporary
+  class Accepted good
+  class Error bad
+  class Pending, Rejected ugly
   Fetching: Fetching subscription data
 
   [*] --> Fetching
   Fetching --> Pending: First click
   Pending --> Subscribing: Window visible or button clicked
-  Subscribing --> Accepted: Confetti
+  Subscribing --> Accepted: 🥳 Confetti
   Fetching --> Accepted: Previously accepted
   Fetching --> Rejected: Previously rejected
   Accepted --> Rejected: Unsubscribe
   Rejected --> Accepted: Resubscribe
+  Fetching --> Error: Token expired
+  Error --> [*]: Refresh token
 ```
 
 ## Project Structure
