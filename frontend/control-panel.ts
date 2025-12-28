@@ -125,7 +125,7 @@ export class ControlPanel extends LitElement {
         const updateStatus = this.updateSubscriptionTask.render({
           pending: () => html`<md-linear-progress indeterminate></md-linear-progress>`,
           complete: () => html``,
-          error: (error) => html`<md-suggestion-chip><md-icon slot="icon">error</md-icon>${String(error)}</md-suggestion-chip>`
+          error: (error) => html`<mailer-status-message><md-icon slot="icon">error</md-icon>${String(error)}</mailer-status-message>`
         });
         return html`
           <div class="container">  
