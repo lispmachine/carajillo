@@ -2,26 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 <file target-language="pl" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
-<trans-unit id="s0ade52b437688faf">
-  <source>Missing authorization token</source>
-  <target>Brakujący token uwierzytelniania</target>
-</trans-unit>
-<trans-unit id="sad65264d44677cf0">
-  <source>Something went wrong.</source>
-  <target>Coś poszło nie tak.</target>
-</trans-unit>
-<trans-unit id="s55b02a24911edb75">
-  <source>Cannot retrieve reCAPTCHA site key</source>
-  <target>Nie można pobrać klucza witryny reCAPTCHA</target>
-</trans-unit>
-<trans-unit id="sa92333d7aaa088a8">
-  <source>reCAPTCHA site key not loaded</source>
-  <target>Klucz witryny reCAPTCHA nie został załadowany</target>
-</trans-unit>
-<trans-unit id="s1355969faebef442">
-  <source>⏳ Too many signups, please try again in a little while.</source>
-  <target>⏳ Zbyt wiele rejestracji, spróbuj ponownie za chwilę.</target>
-</trans-unit>
 <trans-unit id="s0b1690024b09098d">
   <source>📨 Almost there! We sent you a confirmation email. Check spam folder if you don't see it.</source>
   <target>📨 Prawie gotowe! Wysłaliśmy Ci e-mail w celu potwierdzenia. Sprawdź folder spam, jeśli go tam nie ma.</target>
@@ -29,6 +9,10 @@
 <trans-unit id="s06de85f5e3de8fb2">
   <source>✉️ Subscription successful.</source>
   <target>✉️ Udało się!</target>
+</trans-unit>
+<trans-unit id="s1355969faebef442">
+  <source>⏳ Too many signups, please try again in a little while.</source>
+  <target>⏳ Zbyt wiele rejestracji, spróbuj ponownie za chwilę.</target>
 </trans-unit>
 <trans-unit id="s21a32ae6ce22bc9b">
   <source>❌ Subscription failed: <x id="0" equiv-text="${result.error}"/></source>
@@ -58,6 +42,22 @@
   <source>You are unsubscribed from all mailing lists.</source>
   <target>Jesteś wypisany z wszystkich list mailingowych.</target>
 </trans-unit>
+<trans-unit id="s575e795c45e2d97e">
+  <source>Go back</source>
+  <target>Wróć na stronę</target>
+</trans-unit>
+<trans-unit id="s0ade52b437688faf">
+  <source>Missing authorization token</source>
+  <target>Brakujący token uwierzytelniania</target>
+</trans-unit>
+<trans-unit id="s55b02a24911edb75">
+  <source>Cannot retrieve reCAPTCHA site key</source>
+  <target>Nie można pobrać klucza witryny reCAPTCHA</target>
+</trans-unit>
+<trans-unit id="sa92333d7aaa088a8">
+  <source>reCAPTCHA site key not loaded</source>
+  <target>Klucz witryny reCAPTCHA nie został załadowany</target>
+</trans-unit>
 <trans-unit id="s3a6bb4620999bfb8">
   <source>Failed to fetch company information</source>
   <target>Nie udało się pobrać informacji o firmie</target>
@@ -68,15 +68,15 @@
 </trans-unit>
 <trans-unit id="s82500864dfbb1759">
   <source>Subscription not found</source>
-  <target>Subskrypcja nie znaleziona</target>
+  <target>Subskrypcja nie została znaleziona</target>
 </trans-unit>
 <trans-unit id="sd44bd8e5e0737baf">
   <source>Failed to update subscription</source>
   <target>Nie udało się zaktualizować subskrypcji</target>
 </trans-unit>
-<trans-unit id="s575e795c45e2d97e">
-  <source>Go back</source>
-  <target>Wróć</target>
+<trans-unit id="sd5a4ff84a58f750b">
+  <source>Something went wrong. Try again later.</source>
+  <target>Ups! Coś poszło nie tak. Spróbuj ponownie za chwilę.</target>
 </trans-unit>
 </body>
 </file>

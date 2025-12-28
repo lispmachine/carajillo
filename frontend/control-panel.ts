@@ -106,6 +106,7 @@ export class ControlPanel extends LitElement {
       font-family: var(--md-sys-typeface-plain);
       color: var(--md-sys-color-on-surface);
       background-color: var(--md-sys-color-surface);
+      --md-icon-size: 32px;
     }
     .container {
       box-sizing: border-box;
@@ -147,7 +148,7 @@ export class ControlPanel extends LitElement {
               ${updateStatus}
             </div>
             ${this.renderSubscriptionStatus(company, subscription)}
-            ${subscription.referer ? html`<md-filled-button @click=${this.close}>${msg('Go back')}<md-icon slot="icon">close</md-icon></md-filled-button>` : html``}
+            ${subscription.referer ? html`<md-filled-button @click=${this.close}>${msg('Go back')}<md-icon slot="icon">task_alt</md-icon></md-filled-button>` : html``}
           </div>`;
       },
       error: (error) => html`<mailer-status-message><md-icon slot="icon">error</md-icon>${String(error)}</mailer-status-message>`
@@ -159,7 +160,7 @@ export class ControlPanel extends LitElement {
 
     if (subscribed) {
       return html`
-        <mailer-status-message><md-icon slot="icon">check_circle</md-icon>${msg('Your subscription has been confirmed.')}<br/>
+        <mailer-status-message><md-icon slot="icon">verified</md-icon>${msg('Your subscription has been confirmed.')}<br/>
           ${msg('You may now close this window or update your subscription.')}</mailer-status-message>
         ${subscription.mailingLists?.length > 0
            ? html`<mailer-mailing-lists
@@ -268,6 +269,7 @@ export class StatusMessage extends LitElement {
     p {
       display: flex;
       flex-direction: row;
+      align-items: center;
       gap: 1rem;
       margin-top: 1rem;
       margin-bottom: 1rem;

@@ -14,7 +14,7 @@ export async function main() {
     await initialize();
   } catch (error) {
     document.querySelectorAll<HTMLElement>(".subscribe-form .subscribe-status").forEach((status) => {
-        const message = (error instanceof Error) ? error.message : msg('Something went wrong.');
+        const message = (error instanceof Error) ? error.message : msg('Something went wrong. Try again later.');
         status.innerText = `🙈 ${message}`;
     });
   }
