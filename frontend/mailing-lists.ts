@@ -28,8 +28,7 @@ export class MailingLists extends LitElement {
   protected render() {
     return html`
       <md-list>
-        <md-list-item type="text">${msg('Choose what you are interested in:')}</md-list-item>
-        <md-divider></md-divider>
+        <md-list-item type="text"><b style="font-weight: 500">${msg('Choose what you are interested in:')}</b></md-list-item>
         ${repeat(
           this.mailingLists ?? [],
           (list) => list.id,

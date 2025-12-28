@@ -1,7 +1,7 @@
 // material components
 import '@material/web/icon/icon';
 import '@material/web/button/filled-button';
-import '@material/web/button/outlined-button';
+import '@material/web/button/filled-tonal-button';
 import '@material/web/progress/linear-progress';
 import '@material/web/progress/circular-progress';
 import '@material/web/icon/icon';
@@ -148,7 +148,7 @@ export class ControlPanel extends LitElement {
               ${updateStatus}
             </div>
             ${this.renderSubscriptionStatus(company, subscription)}
-            ${subscription.referer ? html`<md-filled-button @click=${this.close}>${msg('Go back')}<md-icon slot="icon">task_alt</md-icon></md-filled-button>` : html``}
+            ${subscription.referer ? html`<md-filled-button @click=${this.close}>${msg('Go back')}<md-icon slot="icon">sentiment_satisfied</md-icon></md-filled-button>` : html``}
           </div>`;
       },
       error: (error) => html`<mailer-status-message><md-icon slot="icon">error</md-icon>${String(error)}</mailer-status-message>`
@@ -167,12 +167,12 @@ export class ControlPanel extends LitElement {
            .mailingLists=${subscription.mailingLists}
            ?disabled=${!subscription.subscribed}
            @change=${this.onMailingListChange}></mailer-mailing-lists>` : html``}
-        <md-outlined-button @click=${this.unsubscribe}>${msg('Unsubscribe')}<md-icon slot="icon">unsubscribe</md-icon></md-outlined-button>
+        <md-filled-tonal-button @click=${this.unsubscribe}>${msg('Unsubscribe')}<md-icon slot="icon">sentiment_dissatisfied</md-icon></md-filled-tonal-button>
       `;
     } else {
       return html`
         <mailer-status-message><md-icon slot="icon">unsubscribe</md-icon>${msg('You are unsubscribed from all mailing lists.')}</mailer-status-message>
-        <md-filled-button @click=${this.subscribe}>${msg('Subscribe')}<md-icon slot="icon">mail</md-icon></md-filled-button>`;
+        <md-filled-button @click=${this.subscribe}>${msg('Subscribe')}<md-icon slot="icon">mark_email_read</md-icon></md-filled-button>`;
     }
   }
 
