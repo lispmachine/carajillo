@@ -60,6 +60,7 @@ export class ControlPanel extends LitElement {
     }
     .container {
       width: 20rem;
+      padding: 1rem;
       display: flex;
       flex-direction: column;
       align-items: stretch;
@@ -83,7 +84,7 @@ export class ControlPanel extends LitElement {
             ${updateStatus}
           </div>`;
       },
-      error: (error) => html`<md-suggestion-chip><md-icon slot="icon">error</md-icon>${String(error)}</md-suggestion-chip>`
+      error: (error) => html`<mailer-status-message><md-icon slot="icon">error</md-icon>${String(error)}</mailer-status-message>`
     });
   }
 
@@ -92,8 +93,8 @@ export class ControlPanel extends LitElement {
 
     if (subscribed) {
       return html`
-        <p><md-icon>check_circle</md-icon>${msg('Your subscription has been confirmed.')}<br/>
-          ${msg('You may now close this window or update your subscription.')}</p>
+        <mailer-status-message><md-icon slot="icon">check_circle</md-icon>${msg('Your subscription has been confirmed.')}<br/>
+          ${msg('You may now close this window or update your subscription.')}</mailer-status-message>
         ${subscription.mailingLists?.length > 0
            ? html`<mailer-mailing-lists
            .mailingLists=${subscription.mailingLists}
@@ -103,7 +104,7 @@ export class ControlPanel extends LitElement {
       `;
     } else {
       return html`
-        <md-suggestion-chip><md-icon slot="icon">unsubscribe</md-icon>${msg('You are unsubscribed from all mailing lists.')}</md-suggestion-chip>
+        <mailer-status-message><md-icon slot="icon">unsubscribe</md-icon>${msg('You are unsubscribed from all mailing lists.')}</mailer-status-message>
         <md-filled-button @click=${this.onSubscribe}>${msg('Subscribe')}<md-icon slot="icon">mail</md-icon></md-filled-button>`;
     }
   }
@@ -192,5 +193,25 @@ export class ControlPanel extends LitElement {
       subscribe: true,
       mailingLists: {[e.mailingListId]: e.subscribe}
     }]);
+  }
+}
+
+@customElement('mailer-status-message')
+export class StatusMessage extends LitElement {
+
+  static styles = css`
+    :host {
+      display: block;
+    }
+    p {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      padding: 1rem;
+    }
+  `;
+
+  protected render() {
+    return html`<p><slot name="icon"></slot><slot></slot></p>`;
   }
 }

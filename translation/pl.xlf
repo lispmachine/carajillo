@@ -2,10 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 <file target-language="pl" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
-<trans-unit id="sc9af3682b0897c67">
-  <source>Subscribe for newsletter</source>
-  <target>Zapisz się na newsletter</target>
-</trans-unit>
 <trans-unit id="s0ade52b437688faf">
   <source>Missing authorization token</source>
   <target>Brakujący token uwierzytelniania</target>
@@ -41,6 +37,42 @@
 <trans-unit id="s817ea8fb80b785bd">
   <source>Choose what you are interested in:</source>
   <target>Wybierz co Cię interesuje:</target>
+</trans-unit>
+<trans-unit id="s5ed80f1ff0836b54">
+  <source>Your subscription has been confirmed.</source>
+  <target>Twoja subskrypcja została potwierdzona.</target>
+</trans-unit>
+<trans-unit id="seb4c143ae46f2cef">
+  <source>You may now close this window or update your subscription.</source>
+  <target>Możesz teraz zamknąć to okno lub dopasować swoją subskrypcję.</target>
+</trans-unit>
+<trans-unit id="s58aac558ddaa15a3">
+  <source>Subscribe</source>
+  <target>Zapisz się</target>
+</trans-unit>
+<trans-unit id="s0d7fcbf8f03c7116">
+  <source>Unsubscribe</source>
+  <target>Wypisz się</target>
+</trans-unit>
+<trans-unit id="sce9feca123ab7776">
+  <source>You are unsubscribed from all mailing lists.</source>
+  <target>Jesteś wypisany z wszystkich list mailingowych.</target>
+</trans-unit>
+<trans-unit id="s3a6bb4620999bfb8">
+  <source>Failed to fetch company information</source>
+  <target>Nie udało się pobrać informacji o firmie</target>
+</trans-unit>
+<trans-unit id="s107978f7bff1adb4">
+  <source>Failed to fetch subscription status</source>
+  <target>Nie udało się pobrać statusu subskrypcji</target>
+</trans-unit>
+<trans-unit id="s82500864dfbb1759">
+  <source>Subscription not found</source>
+  <target>Subskrypcja nie znaleziona</target>
+</trans-unit>
+<trans-unit id="sd44bd8e5e0737baf">
+  <source>Failed to update subscription</source>
+  <target>Nie udało się zaktualizować subskrypcji</target>
 </trans-unit>
 </body>
 </file>
