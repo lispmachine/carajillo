@@ -74,6 +74,10 @@
   <source>Failed to update subscription</source>
   <target>Nie udało się zaktualizować subskrypcji</target>
 </trans-unit>
+<trans-unit id="s575e795c45e2d97e">
+  <source>Go back</source>
+  <target>Wróć</target>
+</trans-unit>
 </body>
 </file>
 </xliff>
