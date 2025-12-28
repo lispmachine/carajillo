@@ -21,6 +21,7 @@ export function createToken(email: string, issuer: URL): string
   if (SECRET === undefined) {
     throw new HttpError({
       statusCode: 500,
+      reason: 'server-configuration-error',
       message: "Server configuration error",
       details: "JWT_SECRET not defined"
     });
@@ -38,11 +39,11 @@ export function createToken(email: string, issuer: URL): string
 }
 
 export function authenticate(req: Request): string {
-  // @todo https://www.npmjs.com/package/express-bearer-token?
   const token = req.headers.authorization?.match(/Bearer ([^ ]+)/);
   if (!token)
-    throw new HttpError({statusCode: 401, message: 'Unauthorized'});
+    throw new HttpError({statusCode: 401, reason: 'missing-token', message: 'Unauthorized'});
   // @todo WWW-Authenticate header?
+  // https://datatracker.ietf.org/doc/html/rfc6750#section-3
 
   return validateToken(token[1], req.hostname);
 }
@@ -80,21 +81,26 @@ export function validateToken(jwt: string, issuer: string): string
         message: 'Unauthorized',
         reason: 'expired-token',
         details: error.message,
-      })
+      });
     } else if (error instanceof JsonWebTokenError || error instanceof NotBeforeError) {
       throw new HttpError({
         statusCode: 401,
         message: 'Unauthorized',
         reason: 'invalid-token',
         details: error.message,
-      })
+      });
     } else {
       throw error;
     }
   }
 
   if (payload.sub === undefined) {
-    throw new HttpError({statusCode: 401, message: 'Unauthorized', details: 'Missing token subject'})
+    throw new HttpError({
+      statusCode: 401,
+      reason: 'missing-subject',
+      message: 'Unauthorized',
+      details: 'Missing token subject'
+    });
   }
 
   return payload.sub;

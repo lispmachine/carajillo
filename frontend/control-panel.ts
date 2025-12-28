@@ -54,11 +54,31 @@ export class ControlPanel extends LitElement {
     window.removeEventListener('visibilitychange', this.handleAutosubscribe.bind(this));
   }
 
+  public subscribe() {
+    this.updateSubscriptionTask.run([{
+      email: this.subscription!.email,
+      subscribe: true,
+    }]);
+  }
+
+  public unsubscribe() {
+    this.updateSubscriptionTask.run([{
+      email: this.subscription!.email,
+      subscribe: false,
+    }]);
+  }
+
+  protected onMailingListChange(e: SubscriptionChangeEvent) {
+    this.updateSubscriptionTask.run([{
+      email: this.subscription!.email,
+      subscribe: true,
+      mailingLists: {[e.mailingListId]: e.subscribe}
+    }]);
+  }
+
   protected get useMailingLists(): boolean {
     return this.subscription?.mailingLists !== undefined && this.subscription.mailingLists.length > 0;
   }
-
-  // @todo update name?
 
   static styles = css`
     :host {
@@ -109,12 +129,12 @@ export class ControlPanel extends LitElement {
            .mailingLists=${subscription.mailingLists}
            ?disabled=${!subscription.subscribed}
            @change=${this.onMailingListChange}></mailer-mailing-lists>` : html``}
-        <md-outlined-button @click=${this.onUnsubscribe}>${msg('Unsubscribe')}<md-icon slot="icon">unsubscribe</md-icon></md-outlined-button>
+        <md-outlined-button @click=${this.unsubscribe}>${msg('Unsubscribe')}<md-icon slot="icon">unsubscribe</md-icon></md-outlined-button>
       `;
     } else {
       return html`
         <mailer-status-message><md-icon slot="icon">unsubscribe</md-icon>${msg('You are unsubscribed from all mailing lists.')}</mailer-status-message>
-        <md-filled-button @click=${this.onSubscribe}>${msg('Subscribe')}<md-icon slot="icon">mail</md-icon></md-filled-button>`;
+        <md-filled-button @click=${this.subscribe}>${msg('Subscribe')}<md-icon slot="icon">mail</md-icon></md-filled-button>`;
     }
   }
 
@@ -199,27 +219,6 @@ export class ControlPanel extends LitElement {
     }
   }
 
-  private onSubscribe() {
-    this.updateSubscriptionTask.run([{
-      email: this.subscription!.email,
-      subscribe: true,
-    }]);
-  }
-
-  private onUnsubscribe() {
-    this.updateSubscriptionTask.run([{
-      email: this.subscription!.email,
-      subscribe: false,
-    }]);
-  }
-
-  private onMailingListChange(e: SubscriptionChangeEvent) {
-    this.updateSubscriptionTask.run([{
-      email: this.subscription!.email,
-      subscribe: true,
-      mailingLists: {[e.mailingListId]: e.subscribe}
-    }]);
-  }
 }
 
 @customElement('mailer-status-message')

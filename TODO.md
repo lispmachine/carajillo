@@ -22,6 +22,9 @@
 * [x] company info, logo
 * [x] referer
 * [x] autosubscribe using visibilityState/visibilitychange event
-* [ ] confetti https://www.npmjs.com/package/js-confetti or https://confettijs.org/
+* [x] confetti https://www.npmjs.com/package/js-confetti or https://confettijs.org/
 * [x] move xliff, remove generated translation from repo
 * [ ] automatic tests
+* [ ] handle initial mailing list in form
+* [ ] update name in control panel
+* [ ] error handling - functions to create errors, http headers
