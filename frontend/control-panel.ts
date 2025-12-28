@@ -7,13 +7,9 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { provide } from '@lit/context';
 import { Task } from '@lit/task';
 import { msg } from '@lit/localize';
-import { MdSwitch } from '@material/web/switch/switch';
-import { query } from 'lit/decorators/query.js';
-import { queryAll } from 'lit/decorators/query-all.js';
-import { repeat } from 'lit/directives/repeat.js';
 import { apiRoot, tokenContext } from './context';
 import { initializeLocale } from './localize';
-import { ListSubscription, SubscriptionChangeEvent } from './mailing-lists';
+import { SubscriptionChangeEvent } from './mailing-lists';
 import type { SubscriptionStatus, UpdateSubscriptionRequest } from '../backend/subscription';
 import type { Company } from './company';
 
@@ -42,9 +38,6 @@ export class ControlPanel extends LitElement {
   @state()
   protected subscription?: SubscriptionStatus;
 
-  @queryAll('mailer-list-subscription')
-  private mailingListItems?: NodeListOf<ListSubscription>;
-
   public async connectedCallback() {
     super.connectedCallback();
     await initializeLocale();
@@ -65,46 +58,53 @@ export class ControlPanel extends LitElement {
       color: var(--md-sys-color-on-surface);
       background-color: var(--md-sys-color-surface);
     }
+    .container {
+      width: 20rem;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+    }
   `;
 
   protected render() {
     return this.fetchSubscriptionTask.render({
       pending: () => html`<md-circular-progress four-color indeterminate></md-circular-progress>`,
       complete: ([company, subscription]) => {
-        return this.renderSubscriptionStatus(company, subscription);
+        const updateStatus = this.updateSubscriptionTask.render({
+          pending: () => html`<md-linear-progress indeterminate></md-linear-progress>`,
+          complete: () => html``,
+          error: (error) => html`<md-suggestion-chip><md-icon slot="icon">error</md-icon>${String(error)}</md-suggestion-chip>`
+        });
+        return html`
+          <div class="container">  
+            <mailer-company .company=${company}></mailer-company>
+            ${this.renderSubscriptionStatus(company, subscription)}
+            ${updateStatus}
+          </div>`;
       },
       error: (error) => html`<md-suggestion-chip><md-icon slot="icon">error</md-icon>${String(error)}</md-suggestion-chip>`
     });
   }
 
   protected renderSubscriptionStatus(company: Company, subscription: SubscriptionStatus) {
-    const updateStatus = this.updateSubscriptionTask.render({
-      pending: () => html`<md-linear-progress indeterminate></md-linear-progress>`,
-      complete: () => html``,
-      error: (error) => html`<md-suggestion-chip><md-icon slot="icon">error</md-icon>${String(error)}</md-suggestion-chip>`
-    })
-
     const subscribed = subscription.optInStatus === 'accepted';
 
     if (subscribed) {
       return html`
-        <mailer-company .company=${company}></mailer-company>
-        <p>${msg('Your subscription has been confirmed.')}</p>
+        <p><md-icon>check_circle</md-icon>${msg('Your subscription has been confirmed.')}<br/>
+          ${msg('You may now close this window or update your subscription.')}</p>
         ${subscription.mailingLists?.length > 0
            ? html`<mailer-mailing-lists
            .mailingLists=${subscription.mailingLists}
            ?disabled=${!subscription.subscribed}
            @change=${this.onMailingListChange}></mailer-mailing-lists>` : html``}
-        <p>${msg('You may now close this window.')}</p>
-       <md-outlined-button @click=${this.onUnsubscribe}>${msg('Unsubscribe')}<md-icon slot="icon">unsubscribe</md-icon></md-outlined-button>
-       ${updateStatus}
+        <md-outlined-button @click=${this.onUnsubscribe}>${msg('Unsubscribe')}<md-icon slot="icon">unsubscribe</md-icon></md-outlined-button>
       `;
     } else {
       return html`
-        <mailer-company .company=${company}></mailer-company>
-        <md-filled-button @click=${this.onSubscribe}>${msg('Subscribe')}<md-icon slot="icon">mail</md-icon></md-filled-button>
-        ${updateStatus}
-      `;
+        <md-suggestion-chip><md-icon slot="icon">unsubscribe</md-icon>${msg('You are unsubscribed from all mailing lists.')}</md-suggestion-chip>
+        <md-filled-button @click=${this.onSubscribe}>${msg('Subscribe')}<md-icon slot="icon">mail</md-icon></md-filled-button>`;
     }
   }
 
