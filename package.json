@@ -67,7 +67,7 @@
     "@types/cors": "^2.8.19",
     "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^25.0.2",
+    "@types/node": "^25.0.3",
     "@types/node-fetch": "^2.6.13",
     "dotenv": "^17.2.3",
     "generate-json-webpack-plugin": "^2.0.0",
