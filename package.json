@@ -37,12 +37,12 @@
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lispmachine/carajillo.git"
+    "url": "https://github.com/cozy-blogs/carajillo.git"
   },
   "bugs": {
-    "url": "https://github.com/lispmachinecarajillo/issues"
+    "url": "https://github.com/cozy-blogs/carajillo/issues"
   },
-  "homepage": "https://github.com/lispmachine/carajillo#readme",
+  "homepage": "https://github.com/cozy-blogs/carajillo#readme",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
