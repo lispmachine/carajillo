@@ -26,7 +26,29 @@ app.set('x-powered-by', false);
 const numberOfProxies = process.env.NUMBER_OF_PROXIES ? parseInt(process.env.NUMBER_OF_PROXIES) : 1;
 // Netlify serves as proxy for the express app.
 // @see https://expressjs.com/en/guide/behind-proxies.html
+// @see https://express-rate-limit.mintlify.app/reference/error-codes#err-erl-permissive-trust-proxy
 app.set('trust proxy', numberOfProxies);
+
+// Workaround for Express bug where req.ip can be undefined even when req.ips is populated
+// when trust proxy is set to a number. Parse X-Forwarded-For header directly.
+// X-Forwarded-For format: "client_ip, proxy1_ip, proxy2_ip, ..." (leftmost is original client)
+// When trusting N proxies, the client IP is the leftmost IP in the chain.
+app.use((req, res, next) => {
+  if (!req.ip) {
+    const xForwardedFor = req.headers['x-forwarded-for'];
+    if (typeof xForwardedFor === 'string') {
+      const ips = xForwardedFor.split(',').map(ip => ip.trim()).filter(ip => ip);
+      if (ips.length > numberOfProxies) {
+        // Client IP is always the first untrusted IP, i.e. one preceding the trusted proxies.
+        const clientIP = ips[ips.length - numberOfProxies - 1];
+        (req as any).ip = clientIP;
+        console.debug(`Client IP: ${clientIP}`);
+        console.debug(`Trusted proxies: ${ips.slice(0, -numberOfProxies).join(', ')}`);
+      }
+    }
+  }
+  next();
+});
 
 // Parse strings as simple key-value pairs.
 app.set('query parser', 'simple');
@@ -107,6 +129,7 @@ router.get("/lists", async (req, res) => {
 if (process.env.NODE_ENV === "development") {
   router.get("/test/ip", async (req: express.Request, res: express.Response) => {
     res.json({
+      number_of_proxies: numberOfProxies,
       hostname: req.hostname,
       url: req.originalUrl,
       ip: req.ip,
