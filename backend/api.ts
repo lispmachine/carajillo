@@ -16,7 +16,7 @@ export const app = express();
 
 // There is no need for ETag.
 // API responses are non cacheable.
-// Also there is no risk of "mir-air collision".
+// Also there is no risk of "mid-air collision".
 // @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag
 app.set('etag', false);
 

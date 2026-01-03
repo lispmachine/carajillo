@@ -9,14 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-01-XX
 
-### Added
-- Initial release
-- Newsletter subscription management for loops.so
-- reCAPTCHA v2/v3 validation
+### Initial release
 - Double opt-in subscription flow
-- CORS support
+- Panel for users to manage mailing list subscription
 - Localization support
-- Deployable as Netlify functions
+- reCAPTCHA v2/v3 validation
+- CORS enabled
+- Deployable as netlify functions
 - Comprehensive test suite
 - API documentation with OpenAPI specification
 

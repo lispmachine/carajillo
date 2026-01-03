@@ -1,14 +1,21 @@
 # Carajillo
 
-Newsletter subscription management for loops.so
+Newsletter subscription management for [Loops](https://loops.so/).
 
 ## Features
 
-- ✅ Deployable as netlify functions
-- ✅ reCAPTCHA v2/v3 validation
-- ✅ Double opt-in subscription
-- ✅ CORS enabled
-- ✅ localization support
+- Double opt-in subscription — a replacement for [Loops built-in](https://loops.so/docs/contacts/double-opt-in)
+- Panel for users to manage mailing list subscription
+- Localization support
+- reCAPTCHA v2/v3 validation
+- CORS enabled
+- Deployable as netlify functions
+
+## Roadmap
+
+- [ ] [https://www.hcaptcha.com/] support
+- [ ] Subscription token rotation/refresh
+- [ ] Loops configuration verification
 
 ## Setup
 
@@ -27,6 +34,7 @@ npx netlify site:create
 npm install
 ./scripts/generate-env.bash >.env.development.local
 ln -s .env.development.local .env
+npm run prebuild
 npm run dev
 ```
 
