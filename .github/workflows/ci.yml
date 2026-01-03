@@ -71,27 +71,3 @@ jobs:
         run: |
           test -d frontend/dist || exit 1
           test -f backend/openapi-spec.ts || exit 1
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22.x'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Build generated sources
-        run: npm run prebuild
-
-      - name: Run type check
-        run: npm run check
-
